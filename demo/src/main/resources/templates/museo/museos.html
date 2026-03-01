@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="main-content">
+    <div class="container">
+        <section class="page-header">
+            <h1>🏛️ Selecciona un Museo</h1>
+            <p>Explora los museos más importantes del mundo</p>
+        </section>
+
+        <div class="venues-grid">
+            <!-- Museo del Louvre -->
+            <div class="venue-card">
+                <div class="venue-image museo-louvre">
+                    <div class="venue-badge">París</div>
+                </div>
+                <div class="venue-content">
+                    <h2>Museo del Louvre</h2>
+                    <p class="venue-location">📍 París, Francia</p>
+                    <p class="venue-description">
+                        El museo más visitado del mundo, hogar de la Mona Lisa y miles de obras maestras.
+                    </p>
+
+                    <div class="venue-info">
+                        <div class="info-row">
+                            <span class="info-label">⏰ Horarios:</span>
+                            <span>Miércoles a Lunes: 09:00 - 18:00</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🚫 Cerrado:</span>
+                            <span>Martes y días festivos</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">👥 Capacidad diaria:</span>
+                            <span>15,000 visitantes</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">💶 Precio:</span>
+                            <span>€17.00 por persona</span>
+                        </div>
+                    </div>
+
+                    <div class="museum-highlights">
+                        <h4>Obras destacadas:</h4>
+                        <ul>
+                            <li>🎨 La Mona Lisa - Leonardo da Vinci</li>
+                            <li>🗿 Venus de Milo</li>
+                            <li>🏺 Victoria de Samotracia</li>
+                        </ul>
+                    </div>
+
+                    <a th:href="@{/museo/compra(museo='LOUVRE')}" class="btn btn-primary">
+                        Comprar Entrada
+                    </a>
+                </div>
+            </div>
+
+            <!-- Museo Metropolitano de Nueva York -->
+            <div class="venue-card">
+                <div class="venue-image museo-met">
+                    <div class="venue-badge">Nueva York</div>
+                </div>
+                <div class="venue-content">
+                    <h2>Museo Metropolitano</h2>
+                    <p class="venue-location">📍 Nueva York, Estados Unidos</p>
+                    <p class="venue-description">
+                        The Met alberga más de 2 millones de obras de arte de todo el mundo y de todas las épocas.
+                    </p>
+
+                    <div class="venue-info">
+                        <div class="info-row">
+                            <span class="info-label">⏰ Horarios:</span>
+                            <span>Martes a Domingo: 10:00 - 17:00</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🚫 Cerrado:</span>
+                            <span>Lunes y días festivos</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">👥 Capacidad diaria:</span>
+                            <span>12,000 visitantes</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">💵 Precio:</span>
+                            <span>$30.00 USD por persona</span>
+                        </div>
+                    </div>
+
+                    <div class="museum-highlights">
+                        <h4>Colecciones destacadas:</h4>
+                        <ul>
+                            <li>🎨 Arte Egipcio</li>
+                            <li>🏛️ Arte Griego y Romano</li>
+                            <li>🖼️ Pinturas Europeas</li>
+                        </ul>
+                    </div>
+
+                    <a th:href="@{/museo/compra(museo='MET')}" class="btn btn-primary">
+                        Comprar Entrada
+                    </a>
+                </div>
+            </div>
+
+            <!-- Museos Vaticanos -->
+            <div class="venue-card">
+                <div class="venue-image museo-vaticano">
+                    <div class="venue-badge">Ciudad del Vaticano</div>
+                </div>
+                <div class="venue-content">
+                    <h2>Museos Vaticanos</h2>
+                    <p class="venue-location">📍 Ciudad del Vaticano</p>
+                    <p class="venue-description">
+                        Una de las colecciones de arte más importantes del mundo, incluye la Capilla Sixtina.
+                    </p>
+
+                    <div class="venue-info">
+                        <div class="info-row">
+                            <span class="info-label">⏰ Horarios:</span>
+                            <span>Lunes a Sábado: 09:00 - 18:00</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🚫 Cerrado:</span>
+                            <span>Domingos y festividades religiosas</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">👥 Capacidad diaria:</span>
+                            <span>20,000 visitantes</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">💶 Precio:</span>
+                            <span>€20.00 por persona</span>
+                        </div>
+                    </div>
+
+                    <div class="museum-highlights">
+                        <h4>Imperdibles:</h4>
+                        <ul>
+                            <li>⛪ Capilla Sixtina - Miguel Ángel</li>
+                            <li>🎨 Estancias de Rafael</li>
+                            <li>🏺 Museo Pío-Clementino</li>
+                        </ul>
+                    </div>
+
+                    <a th:href="@{/museo/compra(museo='VATICANO')}" class="btn btn-primary">
+                        Comprar Entrada
+                    </a>
+                </div>
+            </div>
+
+            <!-- Museo Nacional de Antropología -->
+            <div class="venue-card">
+                <div class="venue-image museo-antropologia">
+                    <div class="venue-badge">Ciudad de México</div>
+                </div>
+                <div class="venue-content">
+                    <h2>Museo Nacional de Antropología</h2>
+                    <p class="venue-location">📍 Ciudad de México, México</p>
+                    <p class="venue-description">
+                        El museo más importante de México, dedicado a la arqueología y cultura prehispánica.
+                    </p>
+
+                    <div class="venue-info">
+                        <div class="info-row">
+                            <span class="info-label">⏰ Horarios:</span>
+                            <span>Martes a Domingo: 09:00 - 19:00</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🚫 Cerrado:</span>
+                            <span>Lunes</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">👥 Capacidad diaria:</span>
+                            <span>8,000 visitantes</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">💵 Precio:</span>
+                            <span>$90.00 MXN por persona</span>
+                        </div>
+                    </div>
+
+                    <div class="museum-highlights">
+                        <h4>Salas destacadas:</h4>
+                        <ul>
+                            <li>🗿 Piedra del Sol (Calendario Azteca)</li>
+                            <li>🏺 Sala Maya</li>
+                            <li>⚱️ Sala Mexica</li>
+                        </ul>
+                    </div>
+
+                    <a th:href="@{/museo/compra(museo='ANTROPOLOGIA')}" class="btn btn-primary">
+                        Comprar Entrada
+                    </a>
+                </div>
+            </div>
+
+            <!-- Museu Nacional d'Art de Catalunya -->
+            <div class="venue-card">
+                <div class="venue-image museo-mnac">
+                    <div class="venue-badge">Barcelona</div>
+                </div>
+                <div class="venue-content">
+                    <h2>Museu Nacional d'Art de Catalunya</h2>
+                    <p class="venue-location">📍 Barcelona, España</p>
+                    <p class="venue-description">
+                        MNAC alberga la colección más completa de arte románico del mundo.
+                    </p>
+
+                    <div class="venue-info">
+                        <div class="info-row">
+                            <span class="info-label">⏰ Horarios:</span>
+                            <span>Martes a Sábado: 10:00 - 20:00<br>Domingo: 10:00 - 15:00</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🚫 Cerrado:</span>
+                            <span>Lunes (excepto festivos)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">👥 Capacidad diaria:</span>
+                            <span>5,000 visitantes</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">💶 Precio:</span>
+                            <span>€12.00 por persona</span>
+                        </div>
+                    </div>
+
+                    <div class="museum-highlights">
+                        <h4>Colecciones:</h4>
+                        <ul>
+                            <li>🎨 Arte Románico</li>
+                            <li>🖼️ Arte Gótico</li>
+                            <li>🏛️ Arte Moderno Catalán</li>
+                        </ul>
+                    </div>
+
+                    <a th:href="@{/museo/compra(museo='MNAC')}" class="btn btn-primary">
+                        Comprar Entrada
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información General de Restricciones -->
+        <section class="restrictions-section">
+            <div class="card">
+                <h2>ℹ️ Información General para Visitantes</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <span class="info-icon">📸</span>
+                        <h4>Fotografía</h4>
+                        <p>Permitida sin flash en la mayoría de las salas (verificar señalización)</p>
+                    </div>
+                    <div class="info-card">
+                        <span class="info-icon">🎒</span>
+                        <h4>Mochilas</h4>
+                        <p>Mochilas grandes deben dejarse en guardarropa</p>
+                    </div>
+                    <div class="info-card">
+                        <span class="info-icon">🍔</span>
+                        <h4>Alimentos</h4>
+                        <p>No se permite comer ni beber dentro de las salas</p>
+                    </div>
+                    <div class="info-card">
+                        <span class="info-icon">♿</span>
+                        <h4>Accesibilidad</h4>
+                        <p>Todos los museos cuentan con acceso para personas con movilidad reducida</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

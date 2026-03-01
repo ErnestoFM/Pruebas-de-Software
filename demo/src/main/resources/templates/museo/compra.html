@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="main-content">
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Inicio</a> /
+            <a th:href="@{/museo}">Museo</a> /
+            <span>Compra de Entradas</span>
+        </div>
+
+        <div class="purchase-container">
+            <div class="purchase-main">
+                <h1>🏛️ Compra de Entradas - Museo</h1>
+
+                <form th:action="@{/{id}/museo/compra}" method="post" id="formCompraMuseo">
+                    <!-- Información del Museo -->
+                    <div class="card">
+                        <h2>Información del Museo</h2>
+                        <div class="museum-summary">
+                            <div class="museum-icon-large">🏛️</div>
+                            <div class="museum-details">
+                                <h3>Museo del Louvre</h3>
+                                <p class="museum-location">
+                                    <strong>📍 Ubicación:</strong>
+                                    <span>París, Francia</span>
+                                </p>
+                                <p class="museum-description">
+                                    El museo más visitado del mundo...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fecha de Visita -->
+                    <div class="card">
+                        <h2>Fecha y Horario de Visita</h2>
+
+                        <div class="alert alert-info">
+                            <strong>⚠️ Importante:</strong> No se venden entradas para
+                            <span th:text="${museo.getDiasDisponibles()}">lunes</span> ni días festivos.
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fechaVisita">Selecciona la Fecha de Visita *</label>
+                            <input type="date"
+                                   id="fechaVisita"
+                                   name="fechaVisita"
+                                   th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+                                   required>
+                            <small class="form-help">
+                                Horario de atención: <span th:text="${museo.getFechaEstreno()}">09:00 - 18:00</span>
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="horarioEntrada">Horario de Entrada Preferido *</label>
+                            <select id="horarioEntrada" name="horarioEntrada" required>
+                                <option value="">-- Selecciona un horario --</option>
+                                <option th:each="horario : ${museo.getFechaEstreno()}"
+                                        th:value="${horario}"
+                                        th:text="${horario}">09:00</option>
+                            </select>
+                            <small class="form-help">
+                                Se recomienda llegar 15 minutos antes del horario seleccionado
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Tipo de Entrada -->
+                    <div class="card">
+                        <h2>Tipo de Entrada</h2>
+
+                        <div class="ticket-types">
+                            <div class="ticket-type-option">
+                                <input type="radio"
+                                       id="ticket_general"
+                                       name="tipoEntrada"
+                                       value="GENERAL"
+                                       data-precio="${museo.precio}"
+                                       checked
+                                       required>
+                                <label for="ticket_general" class="ticket-type-label">
+                                    <div class="ticket-type-info">
+                                        <h4>Entrada General</h4>
+                                        <p>Acceso a todas las exposiciones permanentes</p>
+                                        <div class="ticket-price">
+                                            <span th:text="'$' + ${museo.precioGeneral}">$17.00</span>
+                                            <span class="currency" th:text="${museo.moneda}">EUR</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="ticket-type-option" th:if="${museo.tieneAudioguia}">
+                                <input type="radio"
+                                       id="ticket_audioguia"
+                                       name="tipoEntrada"
+                                       value="CON_AUDIOGUIA"
+                                       th:data-precio="${museo.precioConAudioguia}"
+                                       required>
+                                <label for="ticket_audioguia" class="ticket-type-label">
+                                    <div class="ticket-type-info">
+                                        <h4>Entrada + Audioguía</h4>
+                                        <p>Incluye audioguía en múltiples idiomas</p>
+                                        <div class="ticket-price">
+                                            <span th:text="'$' + ${museo.precioConAudioguia}">$25.00</span>
+                                            <span class="currency" th:text="${museo.moneda}">EUR</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="ticket-type-option" th:if="${museo.tieneVisitaGuiada}">
+                                <input type="radio"
+                                       id="ticket_guiada"
+                                       name="tipoEntrada"
+                                       value="VISITA_GUIADA"
+                                       th:data-precio="${museo.precioVisitaGuiada}"
+                                       required>
+                                <label for="ticket_guiada" class="ticket-type-label">
+                                    <div class="ticket-type-info">
+                                        <h4>Visita Guiada</h4>
+                                        <p>Tour guiado de 2 horas con experto</p>
+                                        <div class="ticket-price">
+                                            <span th:text="'$' + ${museo.precioVisitaGuiada}">$40.00</span>
+                                            <span class="currency" th:text="${museo.moneda}">EUR</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cantidad de Entradas -->
+                    <div class="card">
+                        <h2>Cantidad de Entradas</h2>
+
+                        <div class="form-group">
+                            <label for="cantidadEntradas">Número de Entradas (Máximo 5) *</label>
+                            <div class="quantity-selector">
+                                <button type="button" class="qty-btn" onclick="decrementQuantityMuseo()">-</button>
+                                <input type="number"
+                                       id="cantidadEntradas"
+                                       name="cantidadEntradas"
+                                       min="1"
+                                       max="5"
+                                       value="1"
+                                       required
+                                       onchange="calcularTotalMuseo()">
+                                <button type="button" class="qty-btn" onclick="incrementQuantityMuseo()">+</button>
+                            </div>
+                            <small class="form-help">Máximo 5 entradas por compra</small>
+                        </div>
+
+                        <div class="availability-info">
+                            <p>
+                                <strong>Disponibilidad:</strong>
+                                <span th:text="${entradasDisponibles}">150</span> entradas disponibles para esta fecha
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Datos de los Visitantes -->
+                    <div class="card">
+                        <h2>Datos de los Visitantes</h2>
+
+                        <div class="form-group">
+                            <label for="nombrePrincipal">Nombre del Titular *</label>
+                            <input type="text"
+                                   id="nombrePrincipal"
+                                   name="nombrePrincipal"
+                                   placeholder="Nombre completo"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emailContacto">Email de Contacto *</label>
+                            <input type="email"
+                                   id="emailContacto"
+                                   name="emailContacto"
+                                   placeholder="correo@ejemplo.com"
+                                   required>
+                            <small class="form-help">Recibirás tus entradas en este correo</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telefonoContacto">Teléfono de Contacto</label>
+                            <input type="tel"
+                                   id="telefonoContacto"
+                                   name="telefonoContacto"
+                                   placeholder="+52 123 456 7890">
+                        </div>
+                    </div>
+
+                    <!-- Restricciones del Museo -->
+                    <div class="card restrictions-card">
+                        <h2>📋 Restricciones y Recomendaciones</h2>
+                        <div class="restrictions-museum">
+                            <div class="restriction-item" th:each="restriccion : ${museo.restricciones}">
+                                <span class="restriction-icon" th:text="${restriccion.icono}">⚠️</span>
+                                <div class="restriction-text">
+                                    <strong th:text="${restriccion.titulo}">Restricción</strong>
+                                    <p th:text="${restriccion.descripcion}">Descripción de la restricción</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="museum-rules">
+                            <h4>Normas del museo:</h4>
+                            <ul>
+                                <li>📸 No usar flash en las fotografías</li>
+                                <li>🎒 Mochilas grandes deben dejarse en guardarropa</li>
+                                <li>🍔 No se permite comer ni beber en las salas</li>
+                                <li>🔇 Mantener el silencio y apagar dispositivos móviles</li>
+                                <li>🚫 No tocar las obras de arte</li>
+                                <li>👕 Vestimenta apropiada (cubrir hombros y rodillas)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a th:href="@{/museo}" class="btn btn-secondary">
+                            ← Volver a Museos
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            Continuar al Pago →
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Resumen de Compra -->
+            <aside class="purchase-summary">
+                <div class="summary-card">
+                    <h2>Resumen de Compra</h2>
+
+                    <div class="summary-item">
+                        <span>Museo:</span>
+                        <strong th:text="${museo.nombre}">Museo del Louvre</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Ubicación:</span>
+                        <strong th:text="${museo.ciudad}">París, Francia</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Fecha:</span>
+                        <strong id="summary-fecha">No seleccionada</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Horario:</span>
+                        <strong id="summary-horario-museo">No seleccionado</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Tipo de entrada:</span>
+                        <strong id="summary-tipo-entrada">General</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Cantidad:</span>
+                        <strong id="summary-cantidad-museo">1</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Precio unitario:</span>
+                        <strong id="summary-precio-unitario-museo">$0.00</strong>
+                    </div>
+
+                    <hr>
+
+                    <div class="summary-total">
+                        <span>Total a Pagar:</span>
+                        <strong id="summary-total-museo">$0.00</strong>
+                    </div>
+
+                    <div class="summary-info">
+                        <p><strong>Incluye:</strong></p>
+                        <ul>
+                            <li>✓ Entrada al museo</li>
+                            <li>✓ Acceso a exposiciones permanentes</li>
+                            <li>✓ Boleto digital por email</li>
+                            <li>✓ Mapa del museo</li>
+                        </ul>
+                    </div>
+
+                    <div class="payment-methods">
+                        <p>💳 Métodos de pago:</p>
+                        <ul>
+                            <li>Tarjeta de Débito</li>
+                            <li>Tarjeta de Crédito</li>
+                            <li>PayPal</li>
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script th:inline="javascript">
+    const museo = /*[[${museo}]]*/ {};
+    const moneda = /*[[${museo.moneda}]]*/ 'MXN';
+
+    function incrementQuantityMuseo() {
+        const input = document.getElementById('cantidadEntradas');
+        if (parseInt(input.value) < 5) {
+            input.value = parseInt(input.value) + 1;
+            calcularTotalMuseo();
+        }
+    }
+
+    function decrementQuantityMuseo() {
+        const input = document.getElementById('cantidadEntradas');
+        if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+            calcularTotalMuseo();
+        }
+    }
+
+    function calcularTotalMuseo() {
+        const tipoSeleccionado = document.querySelector('input[name="tipoEntrada"]:checked');
+        const cantidad = parseInt(document.getElementById('cantidadEntradas').value);
+
+        if (tipoSeleccionado && cantidad) {
+            const precio = parseFloat(tipoSeleccionado.dataset.precio);
+            const total = precio * cantidad;
+
+            document.getElementById('summary-tipo-entrada').textContent =
+                tipoSeleccionado.nextElementSibling.querySelector('h4').textContent;
+            document.getElementById('summary-cantidad-museo').textContent = cantidad;
+            document.getElementById('summary-precio-unitario-museo').textContent =
+                '$' + precio.toFixed(2) + ' ' + moneda;
+            document.getElementById('summary-total-museo').textContent =
+                '$' + total.toFixed(2) + ' ' + moneda;
+        }
+    }
+
+    // Listeners
+    document.querySelectorAll('input[name="tipoEntrada"]').forEach(radio => {
+        radio.addEventListener('change', calcularTotalMuseo);
+    });
+
+    document.getElementById('fechaVisita').addEventListener('change', function(e) {
+        const fecha = new Date(e.target.value + 'T00:00:00');
+        const dia = fecha.getDay();
+        const diasCerrado = /*[[${museo.diasCerradoNumeros}]]*/ [1]; // Array de días cerrados
+
+        if (diasCerrado.includes(dia)) {
+            alert('El museo está cerrado este día. Por favor selecciona otra fecha.');
+            e.target.value = '';
+            document.getElementById('summary-fecha').textContent = 'No seleccionada';
+        } else {
+            document.getElementById('summary-fecha').textContent =
+                new Date(e.target.value).toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+        }
+    });
+
+    document.getElementById('horarioEntrada').addEventListener('change', function() {
+        document.getElementById('summary-horario-museo').textContent = this.value;
+    });
+
+    // Inicializar cálculo
+    calcularTotalMuseo();
+</script>
+</body>
+</html>

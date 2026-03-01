@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="main-content">
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Inicio</a> /
+            <a th:href="@{/cine}">Cine</a> /
+            <span th:text="${cineNombre}">Cine</span>
+        </div>
+
+        <section class="page-header">
+            <h1 th:text="${cineNombre}">Cinemark</h1>
+            <p>Selecciona la película y el formato que prefieres</p>
+        </section>
+
+        <!-- Filtros -->
+        <div class="filters-section">
+            <div class="filter-group">
+                <label for="filterGenero">Género:</label>
+                <select id="filterGenero" onchange="filtrarPeliculas()">
+                    <option value="">Todos</option>
+                    <option value="ACCION">Acción</option>
+                    <option value="COMEDIA">Comedia</option>
+                    <option value="DRAMA">Drama</option>
+                    <option value="TERROR">Terror</option>
+                    <option value="CIENCIA_FICCION">Ciencia Ficción</option>
+                    <option value="ANIMACION">Animación</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filterClasificacion">Clasificación:</label>
+                <select id="filterClasificacion" onchange="filtrarPeliculas()">
+                    <option value="">Todas</option>
+                    <option value="AA">AA - Todo público</option>
+                    <option value="A">A - Niños acompañados</option>
+                    <option value="B">B - Adolescentes</option>
+                    <option value="B15">B15 - Mayores de 15</option>
+                    <option value="C">C - Adultos</option>
+                    <option value="D">D - Adultos explícito</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="peliculas-grid">
+            <div class="pelicula-card" th:each="pelicula : ${peliculas}">
+                <div class="pelicula-poster">
+                    <img th:src="@{/images/peliculas/{poster}(poster=${pelicula.poster})}"
+                         th:alt="${pelicula.titulo}"
+                         onerror="this.src='/images/placeholder-movie.jpg'">
+                    <div class="clasificacion-badge" th:classappend="${pelicula.clasificacion.toLowerCase()}"
+                         th:text="${pelicula.clasificacion}">AA</div>
+                </div>
+                <div class="pelicula-content">
+                    <h3 th:text="${pelicula.titulo}">Título de la Película</h3>
+
+                    <div class="pelicula-meta">
+                            <span class="meta-item">
+                                <strong>Género:</strong> <span th:text="${pelicula.genero}">Acción</span>
+                            </span>
+                        <span class="meta-item">
+                                <strong>Duración:</strong> <span th:text="${pelicula.duracion}">120 min</span>
+                            </span>
+                        <span class="meta-item">
+                                <strong>Clasificación:</strong>
+                                <span th:text="${pelicula.clasificacionDescripcion}">Todo público</span>
+                            </span>
+                    </div>
+
+                    <p class="pelicula-sinopsis" th:text="${pelicula.sinopsis}">
+                        Sinopsis de la película...
+                    </p>
+
+                    <!-- Formatos Disponibles -->
+                    <div class="formatos-section">
+                        <h4>Formatos Disponibles:</h4>
+                        <div class="formatos-grid">
+                            <div class="formato-option" th:each="formato : ${pelicula.formatos}">
+                                <div class="formato-card" th:classappend="${formato.disponible} ? '' : 'no-disponible'">
+                                    <div class="formato-icon" th:switch="${formato.tipo}">
+                                        <span th:case="'TRADICIONAL'">🎬</span>
+                                        <span th:case="'IMAX'">🎆</span>
+                                        <span th:case="'4DX'">💺</span>
+                                        <span th:case="'VIP'">👑</span>
+                                        <span th:case="'MACRO_XE'">📺</span>
+                                        <span th:case="'JUNIOR'">👶</span>
+                                        <span th:case="'SCREEN_X'">🖥️</span>
+                                        <span th:case="'VR'">🥽</span>
+                                        <span th:case="*">🎬</span>
+                                    </div>
+                                    <h5 th:text="${formato.nombre}">Tradicional</h5>
+                                    <p class="formato-precio" th:text="'$' + ${formato.precio}">$80</p>
+                                    <div th:if="${!formato.disponible}" class="no-disponible-badge">
+                                        No disponible
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Horarios -->
+                    <div class="horarios-section">
+                        <h4>Horarios de Hoy:</h4>
+                        <div class="horarios-grid">
+                            <button class="horario-btn"
+                                    th:each="horario : ${pelicula.horarios}"
+                                    th:text="${horario}"
+                                    th:onclick="'seleccionarHorario(\'' + ${pelicula.id} + '\', \'' + ${horario} + '\')'">
+                                14:00
+                            </button>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/cine/compra(cine=${cine},pelicula=${pelicula.id})}"
+                       class="btn btn-primary btn-block">
+                        Comprar Boletos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    function filtrarPeliculas() {
+        const genero = document.getElementById('filterGenero').value;
+        const clasificacion = document.getElementById('filterClasificacion').value;
+
+        // Aquí implementarías la lógica de filtrado o recarga con parámetros
+        let url = new URL(window.location.href);
+        if (genero) url.searchParams.set('genero', genero);
+        else url.searchParams.delete('genero');
+        if (clasificacion) url.searchParams.set('clasificacion', clasificacion);
+        else url.searchParams.delete('clasificacion');
+
+        window.location.href = url.toString();
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="es">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} ?: 'TicketMaster'">TicketMaster</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link th:if="${cssExtra}" rel="stylesheet" th:href="@{${cssExtra}}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+
+<header th:fragment="header">
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a th:href="@{/}">
+                    <h1>🎭 TicketMaster</h1>
+                </a>
+            </div>
+
+            <ul class="nav-menu">
+                <li>
+                    <a th:href="@{/}" th:classappend="${activePage == 'home'} ? 'active'">Inicio</a>
+                </li>
+                <li>
+                    <a th:href="@{/teatro}" th:classappend="${activePage == 'teatro'} ? 'active'">Teatro</a>
+                </li>
+                <li>
+                    <a th:href="@{/cine}" th:classappend="${activePage == 'cine'} ? 'active'">Cine</a>
+                </li>
+                <li>
+                    <a th:href="@{/museo}" th:classappend="${activePage == 'museo'} ? 'active'">Museo</a>
+                </li>
+            </ul>
+
+            <div class="nav-auth">
+
+                <div sec:authorize="!isAuthenticated()" class="auth-buttons">
+                    <a th:href="@{/login}" class="btn-nav btn-login">
+                        <i class="fas fa-sign-in-alt"></i> Ingresar
+                    </a>
+                    <a th:href="@{/registro}" class="btn-nav btn-register">
+                        Registro
+                    </a>
+                </div>
+
+                <div sec:authorize="isAuthenticated()" class="user-dropdown">
+                    <button class="user-btn">
+                        <span class="user-avatar">
+                            <span th:text="${#strings.substring(#authentication.name, 0, 1)}">U</span>
+                        </span>
+                        <span th:text="${#authentication.name}" class="username-text">Usuario</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+
+                    <div class="dropdown-content">
+                        <div class="dropdown-header">
+                            <p class="role-badge" th:each="authority : ${#authentication.authorities}"
+                               th:text="${authority.authority}">ROL</p>
+                        </div>
+
+                        <a th:href="@{/perfil}">
+                            <i class="fas fa-user"></i> Mi Perfil
+                        </a>
+                        <a th:href="@{/perfil/configuracion}">
+                            <i class="fas fa-cog"></i> Configuración
+                        </a>
+                        <a th:href="@{/perfil/mis-boletos}">
+                            <i class="fas fa-ticket-alt"></i> Mis Boletos
+                        </a>
+
+                        <div class="dropdown-divider"></div>
+
+                        <form th:action="@{/logout}" method="post" class="logout-form">
+                            <button type="submit" class="dropdown-item-btn">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </nav>
+</header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Buscamos el botón del usuario y su contenedor
+        const userBtn = document.querySelector('.user-btn');
+        const userDropdown = document.querySelector('.user-dropdown');
+
+        if (userBtn && userDropdown) {
+            // Cuando le den clic/tap al botón...
+            userBtn.addEventListener('click', function(event) {
+                event.stopPropagation(); // Evitamos que el clic se propague al documento
+                userDropdown.classList.toggle('active'); // Encendemos o apagamos el menú
+            });
+        }
+
+        // Si el usuario toca cualquier otra parte de la pantalla, cerramos el menú
+        document.addEventListener('click', function(event) {
+            if (userDropdown && userDropdown.classList.contains('active')) {
+                // Verificamos que no esté haciendo clic dentro del mismo menú
+                if (!userDropdown.contains(event.target)) {
+                    userDropdown.classList.remove('active');
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

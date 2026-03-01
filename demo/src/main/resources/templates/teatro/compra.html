@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"><title>Obras</title></head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="main-content">
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Inicio</a> /
+            <a th:href="@{/teatro}">Teatro</a> /
+            <span>Compra de Boletos</span>
+        </div>
+
+        <div class="purchase-container">
+            <div class="purchase-main">
+                <h1>🎭 Compra de Boletos</h1>
+
+                <form th:action="@{/teatro/procesar-compra}" method="post" id="formCompraTeatro">
+                    <!-- Información del Evento -->
+                    <div class="card">
+                        <h2>Información del Evento</h2>
+                        <div class="event-summary">
+                            <p><strong>Teatro:</strong> <span th:text="${teatro.nombre}">Teatro Colón</span></p>
+                            <p><strong>Obra:</strong> <span th:text="${obra.nombre}">La Bohème</span></p>
+                            <p><strong>Duracion:</strong> <span th:text="${obra.duracion}">Giuseppe Verdi</span></p>
+                            <p><strong>Días Disponibles:</strong>
+                                <span th:each="dia : ${obra.diasDisponibles}"
+                                      class="badge"
+                                      th:text="${#strings.capitalize(#strings.toLowerCase(dia))}">
+                                    Lunes
+                                </span>
+                            </p>
+                            <p><strong>Ropa permitida:</strong>
+                                <span th:each="ropa, iterStat : ${obra.ropaPermitida}"
+                                      th:text="${ropa} + (${!iterStat.last} ? ', ' : '')">CASUAL, ELEGANTE</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Selección de Fecha y Horario -->
+                    <div class="card">
+                        <h2>Fecha y Horario</h2>
+
+                        <div class="form-group">
+                            <label for="fecha">Selecciona la Fecha *</label>
+                            <input type="date"
+                                   id="fecha"
+                                   name="fecha"
+                                   th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+                                   required>
+                            <small class="form-help">No se venden boletos para días festivos o no laborales</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="horario">Selecciona el Horario *</label>
+                            <select id="horario" name="horario" required>
+                                <option value="">-- Selecciona un horario --</option>
+                                <option th:each="horario : ${obra.horarios}"
+                                        th:value="${horario}"
+                                        th:text="${horario}">19:00</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Selección de Sección -->
+                    <div class="card">
+                        <h2>Selección de Sección</h2>
+
+                        <div class="secciones-selection">
+                            <div class="seccion-option" th:each="seccion : ${obra.asientos}">
+                                <input type="radio"
+                                       th:id="'seccion_' + ${seccion.id}"
+                                       name="seccionId"
+                                       th:value="${seccion.id}"
+                                       th:data-precio="${seccion.precio}"
+                                       th:data-nombre="${seccion.getTipoEspecifico()}"
+                                       required>
+                                <label th:for="'seccion_' + ${seccion.id}" class="seccion-label">
+                                    <div class="seccion-info">
+                                        <h3 th:text="${seccion.nombre}">Luneta</h3>
+                                        <p th:text="${seccion.descripcion}">Mejores asientos del teatro</p>
+                                        <div class="seccion-precio">
+                                            <span class="precio-amount" th:text="'$' + ${seccion.precio}">$1,500</span>
+                                            <span class="precio-label">MXN por boleto</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cantidad de Boletos -->
+                    <div class="card">
+                        <h2>Cantidad de Boletos</h2>
+
+                        <div class="form-group">
+                            <label for="cantidad">Número de Boletos (Máximo 10) *</label>
+                            <div class="quantity-selector">
+                                <button type="button" class="qty-btn" onclick="decrementQuantity()">-</button>
+                                <input type="number"
+                                       id="cantidad"
+                                       name="cantidad"
+                                       min="1"
+                                       max="10"
+                                       value="1"
+                                       required
+                                       onchange="calcularTotal()">
+                                <button type="button" class="qty-btn" onclick="incrementQuantity()">+</button>
+                            </div>
+                            <small class="form-help">Máximo 10 boletos por compra</small>
+                        </div>
+
+                        <div class="availability-info">
+                            <p>Boletos disponibles: <strong th:text="${boletosDisponibles}">150</strong></p>
+                        </div>
+                    </div>
+
+                    <!-- Vestimenta Requerida -->
+                    <div class="card dress-code-card">
+                        <h2>👔 Código de Vestimenta</h2>
+                        <div class="dress-code-info">
+                            <div class="dress-icon">👔</div>
+                            <div class="dress-text">
+                                <h3 th:text="${teatro.vestimenta}">Formal / Elegante Casual</h3>
+                                <p>Se recomienda vestir de manera apropiada para disfrutar plenamente de la experiencia teatral.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a th:href="@{/teatro/obras(teatro=${teatro.id})}" class="btn btn-secondary">
+                            ← Volver a Obras
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            Continuar al Pago →
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Resumen de Compra (Sidebar) -->
+            <aside class="purchase-summary">
+                <div class="summary-card">
+                    <h2>Resumen de Compra</h2>
+
+                    <div class="summary-item">
+                        <span>Teatro:</span>
+                        <strong th:text="${teatro.nombre}">Teatro Colón</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Obra:</span>
+                        <strong th:text="${obra.titulo}">La Bohème</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Sección:</span>
+                        <strong id="summary-seccion">No seleccionada</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Cantidad:</span>
+                        <strong id="summary-cantidad">1</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Precio unitario:</span>
+                        <strong id="summary-precio-unitario">$0.00</strong>
+                    </div>
+
+                    <hr>
+
+                    <div class="summary-total">
+                        <span>Total a Pagar:</span>
+                        <strong id="summary-total">$0.00 MXN</strong>
+                    </div>
+
+                    <div class="summary-info">
+                        <p>💳 Métodos de pago aceptados:</p>
+                        <ul>
+                            <li>Tarjeta de Débito</li>
+                            <li>Tarjeta de Crédito</li>
+                            <li>PayPal</li>
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script th:inline="javascript">
+    function incrementQuantity() {
+        const input = document.getElementById('cantidad');
+        if (parseInt(input.value) < 10) {
+            input.value = parseInt(input.value) + 1;
+            calcularTotal();
+        }
+    }
+
+    function decrementQuantity() {
+        const input = document.getElementById('cantidad');
+        if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+            calcularTotal();
+        }
+    }
+
+    function calcularTotal() {
+        const seccionSeleccionada = document.querySelector('input[name="seccionId"]:checked');
+        const cantidad = parseInt(document.getElementById('cantidad').value);
+
+        if (seccionSeleccionada && cantidad) {
+            const precio = parseFloat(seccionSeleccionada.dataset.precio);
+            const nombreSeccion = seccionSeleccionada.dataset.nombre;
+            const total = precio * cantidad;
+
+            document.getElementById('summary-seccion').textContent = nombreSeccion;
+            document.getElementById('summary-cantidad').textContent = cantidad;
+            document.getElementById('summary-precio-unitario').textContent = '$' + precio.toFixed(2);
+            document.getElementById('summary-total').textContent = '$' + total.toFixed(2) + ' MXN';
+        }
+    }
+
+    // Listeners para actualizar resumen
+    document.querySelectorAll('input[name="seccionId"]').forEach(radio => {
+        radio.addEventListener('change', calcularTotal);
+    });
+
+    document.getElementById('cantidad').addEventListener('input', calcularTotal);
+
+    // Validación de días festivos y no laborales
+    document.getElementById('fecha').addEventListener('change', function(e) {
+        const fecha = new Date(e.target.value + 'T00:00:00');
+        const dia = fecha.getDay();
+
+        // 0 = Domingo, 1 = Lunes
+        if (dia === 0 || dia === 1) {
+            alert('No se venden boletos para este día. Por favor selecciona otro día.');
+            e.target.value = '';
+        }
+    });
+</script>
+</body>
+</html>

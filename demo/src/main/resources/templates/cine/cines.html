@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="main-content">
+    <div class="container">
+        <section class="page-header">
+            <h1>🎬 Selecciona un Cine</h1>
+            <p>Disfruta de la mejor experiencia cinematográfica</p>
+        </section>
+
+        <div class="venues-grid">
+            <!-- Cinemark -->
+            <div class="venue-card">
+                <div class="venue-image cine-cinemark">
+                    <div class="venue-badge">Premium</div>
+                </div>
+                <div class="venue-content">
+                    <h2>Cinemark</h2>
+                    <p class="venue-location">📍 Múltiples ubicaciones</p>
+                    <p class="venue-description">
+                        Experiencia cinematográfica premium con la mejor tecnología en proyección y sonido.
+                    </p>
+
+                    <div class="venue-info">
+                        <div class="info-row">
+                            <span class="info-label">⏰ Horarios:</span>
+                            <span>Todos los días: 10:00 - 00:00</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🪑 Capacidad promedio:</span>
+                            <span>200-300 por sala</span>
+                        </div>
+                    </div>
+
+                    <div class="services-available">
+                        <h4>Servicios Disponibles:</h4>
+                        <div class="service-tags">
+                            <span class="service-tag">Tradicional</span>
+                            <span class="service-tag">VIP</span>
+                            <span class="service-tag">IMAX</span>
+                            <span class="service-tag">4DX</span>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/cine/peliculas(cine='CINEMARK')}" class="btn btn-primary">
+                        Ver Cartelera
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cinépolis -->
+            <div class="venue-card">
+                <div class="venue-image cine-cinepolis">
+                    <div class="venue-badge">Líder en México</div>
+                </div>
+                <div class="venue-content">
+                    <h2>Cinépolis</h2>
+                    <p class="venue-location">📍 La cadena más grande de México</p>
+                    <p class="venue-description">
+                        Disfruta de la experiencia Cinépolis con múltiples formatos y servicios exclusivos.
+                    </p>
+
+                    <div class="venue-info">
+                        <div class="info-row">
+                            <span class="info-label">⏰ Horarios:</span>
+                            <span>Todos los días: 09:30 - 01:00</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🪑 Capacidad promedio:</span>
+                            <span>150-250 por sala</span>
+                        </div>
+                    </div>
+
+                    <div class="services-available">
+                        <h4>Servicios Disponibles:</h4>
+                        <div class="service-tags">
+                            <span class="service-tag">Tradicional</span>
+                            <span class="service-tag">Macro XE</span>
+                            <span class="service-tag">IMAX</span>
+                            <span class="service-tag">4DX</span>
+                            <span class="service-tag">Cinépolis Junior</span>
+                            <span class="service-tag">VIP</span>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/cine/peliculas(cine='CINEPOLIS')}" class="btn btn-primary">
+                        Ver Cartelera
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cinemex -->
+            <div class="venue-card">
+                <div class="venue-image cine-cinemex">
+                    <div class="venue-badge">Innovación</div>
+                </div>
+                <div class="venue-content">
+                    <h2>Cinemex</h2>
+                    <p class="venue-location">📍 Red nacional</p>
+                    <p class="venue-description">
+                        Tecnología de vanguardia y formatos innovadores para una experiencia inolvidable.
+                    </p>
+
+                    <div class="venue-info">
+                        <div class="info-row">
+                            <span class="info-label">⏰ Horarios:</span>
+                            <span>Todos los días: 10:00 - 00:30</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🪑 Capacidad promedio:</span>
+                            <span>180-280 por sala</span>
+                        </div>
+                    </div>
+
+                    <div class="services-available">
+                        <h4>Servicios Disponibles:</h4>
+                        <div class="service-tags">
+                            <span class="service-tag">Tradicional</span>
+                            <span class="service-tag">Platino</span>
+                            <span class="service-tag">IMAX</span>
+                            <span class="service-tag">Screen X</span>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/cine/peliculas(cine='CINEMEX')}" class="btn btn-primary">
+                        Ver Cartelera
+                    </a>
+                </div>
+            </div>
+
+            <!-- AMC -->
+            <div class="venue-card">
+                <div class="venue-image cine-amc">
+                    <div class="venue-badge">Internacional</div>
+                </div>
+                <div class="venue-content">
+                    <h2>AMC Theatres</h2>
+                    <p class="venue-location">📍 Presencia global</p>
+                    <p class="venue-description">
+                        La cadena de cines más grande del mundo con experiencias únicas.
+                    </p>
+
+                    <div class="venue-info">
+                        <div class="info-row">
+                            <span class="info-label">⏰ Horarios:</span>
+                            <span>Todos los días: 11:00 - 00:00</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🪑 Capacidad promedio:</span>
+                            <span>250-350 por sala</span>
+                        </div>
+                    </div>
+
+                    <div class="services-available">
+                        <h4>Servicios Disponibles:</h4>
+                        <div class="service-tags">
+                            <span class="service-tag">Tradicional</span>
+                            <span class="service-tag">IMAX</span>
+                            <span class="service-tag">Dolby Cinema</span>
+                            <span class="service-tag">PRIME</span>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/cine/peliculas(cine='AMC')}" class="btn btn-primary">
+                        Ver Cartelera
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Restricciones -->
+        <section class="restrictions-section">
+            <div class="card">
+                <h2>⚠️ Restricciones de Acceso</h2>
+                <div class="restrictions-grid">
+                    <div class="restriction-item">
+                        <span class="restriction-icon">🐕</span>
+                        <p><strong>No se permiten mascotas</strong><br>
+                            Excepto animales de servicio</p>
+                    </div>
+                    <div class="restriction-item">
+                        <span class="restriction-icon">🔫</span>
+                        <p><strong>Prohibidas las armas</strong><br>
+                            De cualquier tipo</p>
+                    </div>
+                    <div class="restriction-item">
+                        <span class="restriction-icon">🍔</span>
+                        <p><strong>No alimentos externos</strong><br>
+                            Dulcería disponible en el cine</p>
+                    </div>
+                    <div class="restriction-item">
+                        <span class="restriction-icon">🎫</span>
+                        <p><strong>Clasificación por edad</strong><br>
+                            Respetar la clasificación de cada película</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

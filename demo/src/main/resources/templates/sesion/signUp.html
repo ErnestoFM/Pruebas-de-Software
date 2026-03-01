@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/header :: head(cssExtra='/css/auth.css', pageTitle='Registro - TicketMaster')}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Estilos para separar las secciones del formulario */
+        .form-section-title {
+            font-size: 1.1rem;
+            color: #4f46e5;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        @media (max-width: 600px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body class="auth-page">
+<header th:replace="~{fragments/header :: header}"></header>
+
+<div class="auth-container">
+    <div class="auth-wrapper">
+        <div class="auth-info-section">
+            <div class="auth-info-content">
+                <a th:href="@{/}" class="auth-logo">
+                    <h1>🎭 TicketMaster</h1>
+                </a>
+                <h2>Únete a nosotros</h2>
+                <p>Crea tu cuenta y accede a miles de eventos culturales</p>
+                <div class="auth-features">
+                    <div class="auth-feature"><span>✓ Registro gratuito</span></div>
+                    <div class="auth-feature"><span>✓ Compra rápida y segura</span></div>
+                    <div class="auth-feature"><span>✓ Ofertas exclusivas</span></div>
+                </div>
+                <div class="auth-decoration">
+                    <div class="decoration-blob blob-1"></div>
+                    <div class="decoration-blob blob-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-form-section">
+            <div class="auth-form-wrapper">
+                <div class="auth-form-header">
+                    <h2>Crear Cuenta</h2>
+                    <p>Completa el formulario para registrarte</p>
+                </div>
+
+                <div class="alert alert-error" th:if="${errorGlobal}">
+                    <span class="alert-icon">⛔</span>
+                    <strong>Error:</strong> <span th:text="${errorGlobal}">Error</span>
+                </div>
+
+                <div class="alert alert-error" th:if="${#fields.hasErrors('registroUsuario.*')}">
+                    <span class="alert-icon">⚠️</span>
+                    <div>
+                        <strong>Corrige los siguientes errores:</strong>
+                        <ul style="margin: 5px 0 0 20px; padding: 0;">
+                            <li th:each="err : ${#fields.errors('registroUsuario.*')}" th:text="${err}"></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <form th:action="@{/registro}"
+                      method="post"
+                      class="auth-form"
+                      th:object="${registroUsuario}"
+                      onsubmit="return validarFormulario()">
+
+                    <div class="form-section-title">Datos Personales</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombre">Nombre(s) *</label>
+                            <div class="input-with-icon">
+                                <span class="input-icon">👤</span>
+                                <input type="text" id="nombre" th:field="*{nombre}" placeholder="Ej. Juan" required>
+                            </div>
+                            <small class="error-message" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="segundoNombre">Segundo Nombre</label>
+                            <div class="input-with-icon">
+                                <span class="input-icon">👤</span>
+                                <input type="text" id="segundoNombre" th:field="*{segundoNombre}" placeholder="Opcional">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="apellidoPaterno">Apellido Paterno *</label>
+                            <div class="input-with-icon">
+                                <span class="input-icon">📝</span>
+                                <input type="text" id="apellidoPaterno" th:field="*{apellidoPaterno}" placeholder="Pérez" required>
+                            </div>
+                            <small class="error-message" th:if="${#fields.hasErrors('apellidoPaterno')}" th:errors="*{apellidoPaterno}"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="apellidoMaterno">Apellido Materno *</label>
+                            <div class="input-with-icon">
+                                <span class="input-icon">📝</span>
+                                <input type="text" id="apellidoMaterno" th:field="*{apellidoMaterno}" placeholder="García" required>
+                            </div>
+                            <small class="error-message" th:if="${#fields.hasErrors('apellidoMaterno')}" th:errors="*{apellidoMaterno}"></small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fechaNacimiento">Nacimiento *</label>
+                            <div class="input-with-icon">
+                                <span class="input-icon">📅</span>
+                                <input type="date" id="fechaNacimiento" th:field="*{fechaNacimiento}" required>
+                            </div>
+                            <small class="error-message" th:if="${#fields.hasErrors('fechaNacimiento')}" th:errors="*{fechaNacimiento}"></small>
+                        </div>
+
+                        <div class="form-group" style="flex: 0.5;">
+                            <label for="genero">Sexo *</label>
+                            <select id="genero" th:field="*{genero}" required style="width: 100%; padding: 0.875rem 1rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+                                <option value="">-</option>
+                                <option value="H">H</option>
+                                <option value="M">M</option>
+                            </select>
+                            <small class="error-message" th:if="${#fields.hasErrors('genero')}" th:errors="*{genero}"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="estado">Estado *</label>
+                            <select id="estado" th:field="*{estado}" required style="width: 100%; padding: 0.875rem 1rem; border: 1px solid #cbd5e1; border-radius: 0.5rem;">
+                                <option value="">Selecciona...</option>
+                                <option value="AS">Aguascalientes (AS)</option>
+                                <option value="BC">Baja California (BC)</option>
+                                <option value="BS">Baja California Sur (BS)</option>
+                                <option value="CC">Campeche (CC)</option>
+                                <option value="CL">Coahuila (CL)</option>
+                                <option value="CM">Colima (CM)</option>
+                                <option value="CS">Chiapas (CS)</option>
+                                <option value="CH">Chihuahua (CH)</option>
+                                <option value="DF">CDMX (DF)</option>
+                                <option value="DG">Durango (DG)</option>
+                                <option value="GT">Guanajuato (GT)</option>
+                                <option value="GR">Guerrero (GR)</option>
+                                <option value="HG">Hidalgo (HG)</option>
+                                <option value="JC">Jalisco (JC)</option>
+                                <option value="EM">Edo. México (EM)</option>
+                                <option value="MI">Michoacán (MI)</option>
+                                <option value="MO">Morelos (MO)</option>
+                                <option value="NA">Nayarit (NA)</option>
+                                <option value="NL">Nuevo León (NL)</option>
+                                <option value="OA">Oaxaca (OA)</option>
+                                <option value="PU">Puebla (PU)</option>
+                                <option value="QT">Querétaro (QT)</option>
+                                <option value="QR">Quintana Roo (QR)</option>
+                                <option value="SP">San Luis Potosí (SP)</option>
+                                <option value="SL">Sinaloa (SL)</option>
+                                <option value="SR">Sonora (SR)</option>
+                                <option value="TC">Tabasco (TC)</option>
+                                <option value="TS">Tamaulipas (TS)</option>
+                                <option value="TL">Tlaxcala (TL)</option>
+                                <option value="VZ">Veracruz (VZ)</option>
+                                <option value="YN">Yucatán (YN)</option>
+                                <option value="ZS">Zacatecas (ZS)</option>
+                            </select>
+                            <small class="error-message" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}"></small>
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">Datos de Contacto y Cuenta</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <div class="input-with-icon">
+                                <span class="input-icon">📧</span>
+                                <input type="email" id="email" th:field="*{email}" placeholder="correo@ejemplo.com" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmEmail">Confirmar Email *</label>
+                            <div class="input-with-icon">
+                                <span class="input-icon">📧</span>
+                                <input type="email" id="confirmEmail" th:field="*{confirmEmail}" placeholder="Repite tu email" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">📱</span>
+                            <input type="tel" id="telefono" th:field="*{telefono}" placeholder="123 456 7890">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">Contraseña *</label>
+                            <div class="input-with-icon">
+                                <span class="input-icon">🔒</span>
+                                <input type="password"
+                                       id="password"
+                                       th:field="*{password}"
+                                       placeholder="Exactamente 8 caracteres"
+                                       maxlength="8"
+                                       required>
+                                <button type="button" class="toggle-password" onclick="togglePasswordField('password')">
+                                    <span id="toggleIcon1">👁️</span>
+                                </button>
+                            </div>
+                            <ul class="validation-list" style="list-style: none; padding-left: 0; font-size: 0.8rem; color: #64748b; margin-top: 5px;">
+                                <li id="req-length" class="req-item">❌ 8 caracteres exactos</li>
+                                <li id="req-upper" class="req-item">❌ Una Mayúscula</li>
+                                <li id="req-lower" class="req-item">❌ Una Minúscula</li>
+                                <li id="req-number" class="req-item">❌ Un Número</li>
+                                <li id="req-special" class="req-item">❌ Un Símbolo (@#$%)</li>
+                            </ul>
+                            <small class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirmar Contraseña *</label>
+                            <div class="input-with-icon">
+                                <span class="input-icon">🔒</span>
+                                <input type="password"
+                                       id="confirmPassword"
+                                       th:field="*{confirmPassword}"
+                                       placeholder="Repite tu contraseña"
+                                       required>
+                                <button type="button" class="toggle-password" onclick="togglePasswordField('confirmPassword')">
+                                    <span id="toggleIcon2">👁️</span>
+                                </button>
+                            </div>
+                            <small id="matchMessage" style="display: block; margin-top: 5px; font-size: 0.85rem; font-weight: 500;"></small>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label class="checkbox-container">
+                            <input type="checkbox" th:field="*{terms}" id="terms">
+                            <span>Acepto los <a href="#" target="_blank">términos y condiciones</a></span>
+                        </label>
+                        <small class="error-message" th:if="${#fields.hasErrors('terms')}" th:errors="*{terms}"></small>
+                    </div>
+
+                    <button type="submit" class="btn btn-auth-primary">
+                        <span>Crear Cuenta</span>
+                    </button>
+
+                    <div class="auth-footer">
+                        <p>¿Ya tienes una cuenta? <a th:href="@{/login}" class="auth-link">Inicia sesión aquí</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Alternar Visibilidad Password
+    function togglePasswordField(fieldId) {
+        const field = document.getElementById(fieldId);
+        const btn = field.parentElement.querySelector('.toggle-password');
+        const icon = btn.querySelector('span');
+
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.textContent = '👁️‍🗨️';
+        } else {
+            field.type = 'password';
+            icon.textContent = '👁️';
+        }
+    }
+
+    // 2. Máscara de Teléfono
+    const phoneInput = document.getElementById('telefono');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function (e) {
+            let x = e.target.value.replace(/\D/g, '').substring(0, 10);
+            if (x.length > 6) e.target.value = `${x.slice(0,3)} ${x.slice(3,6)} ${x.slice(6)}`;
+            else if (x.length > 3) e.target.value = `${x.slice(0,3)} ${x.slice(3)}`;
+            else e.target.value = x;
+        });
+    }
+
+    // 3. Validación Visual de Password en Tiempo Real
+    const passInput = document.getElementById('password');
+    if (passInput) {
+        passInput.addEventListener('input', function(e) {
+            const val = e.target.value;
+            const updateReq = (id, valid) => {
+                const el = document.getElementById(id);
+                if(el) {
+                    if (valid) {
+                        el.style.color = '#10b981';
+                        el.innerHTML = '✅ ' + el.innerText.substring(2);
+                    } else {
+                        el.style.color = '#64748b';
+                        el.innerHTML = '❌ ' + el.innerText.substring(2);
+                    }
+                }
+            };
+            updateReq('req-length', val.length === 8);
+            updateReq('req-upper', /[A-Z]/.test(val));
+            updateReq('req-lower', /[a-z]/.test(val));
+            updateReq('req-number', /[0-9]/.test(val));
+            updateReq('req-special', /[@#$%^&+=!]/.test(val));
+        });
+    }
+
+    // 4. VALIDACIÓN FINAL AL ENVIAR (SweetAlert)
+    function validarFormulario() {
+        const pass = document.getElementById('password').value;
+        const confirmPass = document.getElementById('confirmPassword').value;
+        const email = document.getElementById('email').value;
+        const confirmEmail = document.getElementById('confirmEmail').value;
+        const terms = document.getElementById('terms').checked;
+
+        // Password Regex
+        const passRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).{8}$/;
+        if (!passRegex.test(pass)) {
+            Swal.fire('Contraseña Débil', 'Revisa la lista de requisitos debajo del campo de contraseña.', 'error');
+            return false;
+        }
+
+        // Coincidencias
+        if (email !== confirmEmail) { Swal.fire('Error', 'Los emails no coinciden', 'error'); return false; }
+        if (pass !== confirmPass) { Swal.fire('Error', 'Las contraseñas no coinciden', 'error'); return false; }
+
+        // Terms
+        if (!terms) {
+            Swal.fire('Atención', 'Debes aceptar los términos y condiciones', 'warning');
+            return false;
+        }
+
+        // Limpiar teléfono antes de enviar para que el DTO reciba solo números
+        if (phoneInput) phoneInput.value = phoneInput.value.replace(/\s/g, '');
+
+        return true;
+    }
+
+    // 5. Verificador de coincidencia de contraseñas
+    document.addEventListener('DOMContentLoaded', function() {
+        const pass1 = document.getElementById('password');
+        const pass2 = document.getElementById('confirmPassword');
+        const msg = document.getElementById('matchMessage');
+
+        function checkMatch() {
+            if (pass2.value.length === 0) {
+                pass2.style.borderColor = '#cbd5e1';
+                msg.textContent = '';
+                return;
+            }
+
+            if (pass1.value === pass2.value) {
+                pass2.style.borderColor = '#10b981';
+                msg.style.color = '#10b981';
+                msg.textContent = '✅ Las contraseñas coinciden';
+            } else {
+                pass2.style.borderColor = '#ef4444';
+                msg.style.color = '#ef4444';
+                msg.textContent = '❌ Las contraseñas no coinciden';
+            }
+        }
+
+        pass2.addEventListener('input', checkMatch);
+        pass1.addEventListener('input', checkMatch);
+    });
+</script>
+</body>
+</html>

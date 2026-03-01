@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="main-content">
+    <div class="container">
+        <section class="page-header">
+            <h1>🎭 Selecciona un Teatro</h1>
+            <p>Elige entre los teatros más prestigiosos del mundo</p>
+        </section>
+
+        <div class="alert alert-info" th:if="${mensaje}">
+            <p th:text="${mensaje}"></p>
+        </div>
+
+        <div class="venues-grid">
+            <!-- Teatro Colón Buenos Aires -->
+            <div class="venue-card">
+                <div class="venue-image teatro-colon">
+                    <div class="venue-badge">Buenos Aires</div>
+                </div>
+                <div class="venue-content">
+                    <h2>Teatro Colón</h2>
+                    <p class="venue-location">📍 Buenos Aires, Argentina</p>
+                    <p class="venue-description">
+                        Uno de los teatros de ópera más importantes del mundo, reconocido por su acústica excepcional.
+                    </p>
+
+                    <div class="venue-info">
+                        <div class="info-row">
+                            <span class="info-label">⏰ Horarios:</span>
+                            <span>Martes a Domingo: 18:00 - 23:00</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🪑 Capacidad:</span>
+                            <span>2,487 espectadores</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">👔 Vestimenta:</span>
+                            <span>Formal / Elegante casual</span>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/teatro/obras(teatro='COLON')}" class="btn btn-primary">
+                        Ver Obras Disponibles
+                    </a>
+                </div>
+            </div>
+
+            <!-- Teatro de la Scala Milán -->
+            <div class="venue-card">
+                <div class="venue-image teatro-scala">
+                    <div class="venue-badge">Milán</div>
+                </div>
+                <div class="venue-content">
+                    <h2>Teatro de la Scala</h2>
+                    <p class="venue-location">📍 Milán, Italia</p>
+                    <p class="venue-description">
+                        El templo mundial de la ópera italiana, hogar de las producciones más prestigiosas.
+                    </p>
+
+                    <div class="venue-info">
+                        <div class="info-row">
+                            <span class="info-label">⏰ Horarios:</span>
+                            <span>Miércoles a Domingo: 19:00 - 23:30</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🪑 Capacidad:</span>
+                            <span>2,030 espectadores</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">👔 Vestimenta:</span>
+                            <span>Formal (Traje/Vestido)</span>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/teatro/obras(teatro='SCALA')}" class="btn btn-primary">
+                        Ver Obras Disponibles
+                    </a>
+                </div>
+            </div>
+
+            <!-- Teatro Metropólitan CDMX -->
+            <div class="venue-card">
+                <div class="venue-image teatro-metropolitan">
+                    <div class="venue-badge">Ciudad de México</div>
+                </div>
+                <div class="venue-content">
+                    <h2>Teatro Metropólitan</h2>
+                    <p class="venue-location">📍 Ciudad de México, México</p>
+                    <p class="venue-description">
+                        Recinto histórico que combina tradición y modernidad en el corazón de la CDMX.
+                    </p>
+
+                    <div class="venue-info">
+                        <div class="info-row">
+                            <span class="info-label">⏰ Horarios:</span>
+                            <span>Jueves a Domingo: 17:00 - 22:00</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🪑 Capacidad:</span>
+                            <span>3,000 espectadores</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">👔 Vestimenta:</span>
+                            <span>Elegante casual</span>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/teatro/obras(teatro='METROPOLITAN')}" class="btn btn-primary">
+                        Ver Obras Disponibles
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="main-content">
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Inicio</a> /
+            <a th:href="@{/cine}">Cine</a> /
+            <span>Compra de Boletos</span>
+        </div>
+
+        <div class="purchase-container">
+            <div class="purchase-main">
+                <h1>🎬 Compra de Boletos - Cine</h1>
+
+                <form th:action="@{/cine/procesar-compra}" method="post" id="formCompraCine">
+                    <!-- Información de la Película -->
+                    <div class="card">
+                        <h2>Información de la Película</h2>
+                        <div class="movie-summary">
+                            <div class="movie-poster-small">
+                                <img th:src="@{/images/peliculas/{poster}(poster=${pelicula.poster})}"
+                                     th:alt="${pelicula.titulo}">
+                                <div class="clasificacion-badge" th:text="${pelicula.clasificacion}">AA</div>
+                            </div>
+                            <div class="movie-info">
+                                <h3 th:text="${pelicula.titulo}">Película</h3>
+                                <p><strong>Cine:</strong> <span th:text="${cine.nombre}">Cinemark</span></p>
+                                <p><strong>Género:</strong> <span th:text="${pelicula.genero}">Acción</span></p>
+                                <p><strong>Duración:</strong> <span th:text="${pelicula.duracion}">120 min</span></p>
+                                <p class="clasificacion-warning" th:if="${pelicula.clasificacion != 'AA'}">
+                                    ⚠️ Clasificación <span th:text="${pelicula.clasificacion}">B15</span>:
+                                    <span th:text="${pelicula.clasificacionDescripcion}">Mayores de 15 años</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fecha y Horario -->
+                    <div class="card">
+                        <h2>Fecha y Horario</h2>
+
+                        <div class="form-group">
+                            <label for="fecha">Selecciona la Fecha *</label>
+                            <input type="date"
+                                   id="fecha"
+                                   name="fecha"
+                                   th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="horario">Selecciona el Horario *</label>
+                            <div class="horarios-selection">
+                                <div class="horario-option" th:each="horario : ${pelicula.horarios}">
+                                    <input type="radio"
+                                           th:id="'horario_' + ${horario}"
+                                           name="horario"
+                                           th:value="${horario}"
+                                           required>
+                                    <label th:for="'horario_' + ${horario}" class="horario-label">
+                                        <span th:text="${horario}">14:00</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formato y Servicio -->
+                    <div class="card">
+                        <h2>Selección de Formato</h2>
+
+                        <div class="formatos-selection">
+                            <div class="formato-card-large" th:each="formato : ${pelicula.formatos}"
+                                 th:classappend="${!formato.disponible} ? 'disabled' : ''">
+                                <input type="radio"
+                                       th:id="'formato_' + ${formato.id}"
+                                       name="formatoId"
+                                       th:value="${formato.id}"
+                                       th:data-precio="${formato.precio}"
+                                       th:data-nombre="${formato.nombre}"
+                                       th:disabled="${!formato.disponible}"
+                                       required>
+                                <label th:for="'formato_' + ${formato.id}" class="formato-label-large">
+                                    <div class="formato-header">
+                                        <h3 th:text="${formato.nombre}">IMAX</h3>
+                                        <span class="formato-precio-badge" th:text="'$' + ${formato.precio}">$150</span>
+                                    </div>
+                                    <p th:text="${formato.descripcion}">Descripción del formato</p>
+                                    <div class="formato-features">
+                                            <span class="feature-tag" th:each="caracteristica : ${formato.caracteristicas}"
+                                                  th:text="${caracteristica}">Pantalla grande</span>
+                                    </div>
+                                    <div th:if="${!formato.disponible}" class="no-disponible-msg">
+                                        ❌ No disponible en este cine
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Selección de Asientos -->
+                    <div class="card">
+                        <h2>Selección de Asientos</h2>
+
+                        <div class="form-group">
+                            <label for="cantidad">Cantidad de Boletos *</label>
+                            <div class="quantity-selector">
+                                <button type="button" class="qty-btn" onclick="decrementQuantity()">-</button>
+                                <input type="number"
+                                       id="cantidad"
+                                       name="cantidad"
+                                       min="1"
+                                       max="10"
+                                       value="1"
+                                       required
+                                       onchange="generarSelectorAsientos()">
+                                <button type="button" class="qty-btn" onclick="incrementQuantity()">+</button>
+                            </div>
+                        </div>
+
+                        <div id="asientos-container" class="asientos-section">
+                            <!-- Se generará dinámicamente con JavaScript -->
+                        </div>
+
+                        <div class="sala-diagram">
+                            <div class="pantalla">🎬 PANTALLA</div>
+                            <div class="asientos-grid" id="sala-visual">
+                                <!-- Visualización de la sala -->
+                            </div>
+                            <div class="leyenda">
+                                <span class="asiento-disponible-leyenda">⬜ Disponible</span>
+                                <span class="asiento-ocupado-leyenda">⬛ Ocupado</span>
+                                <span class="asiento-seleccionado-leyenda">🟦 Seleccionado</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Restricciones -->
+                    <div class="card restrictions-card">
+                        <h2>⚠️ Restricciones de Acceso</h2>
+                        <div class="restrictions-list">
+                            <div class="restriction-item">
+                                <span class="restriction-icon">🐕</span>
+                                <p><strong>No se permiten mascotas</strong> (excepto animales de servicio)</p>
+                            </div>
+                            <div class="restriction-item">
+                                <span class="restriction-icon">🔫</span>
+                                <p><strong>Prohibido el ingreso con armas</strong> de cualquier tipo</p>
+                            </div>
+                            <div class="restriction-item">
+                                <span class="restriction-icon">🍔</span>
+                                <p><strong>No se permiten alimentos externos</strong> - Dulcería disponible</p>
+                            </div>
+                            <div class="restriction-item">
+                                <span class="restriction-icon">🎫</span>
+                                <p><strong>Respetar clasificación por edad</strong> - Se puede solicitar identificación</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a th:href="@{/cine/peliculas(cine=${cine.id})}" class="btn btn-secondary">
+                            ← Volver a Cartelera
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            Continuar al Pago →
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Resumen de Compra -->
+            <aside class="purchase-summary">
+                <div class="summary-card">
+                    <h2>Resumen de Compra</h2>
+
+                    <div class="summary-item">
+                        <span>Película:</span>
+                        <strong th:text="${pelicula.titulo}">Película</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Cine:</span>
+                        <strong th:text="${cine.nombre}">Cinemark</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Formato:</span>
+                        <strong id="summary-formato">No seleccionado</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Horario:</span>
+                        <strong id="summary-horario">No seleccionado</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Asientos:</span>
+                        <strong id="summary-asientos">No seleccionados</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Cantidad:</span>
+                        <strong id="summary-cantidad">1</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Precio unitario:</span>
+                        <strong id="summary-precio-unitario">$0.00</strong>
+                    </div>
+
+                    <hr>
+
+                    <div class="summary-total">
+                        <span>Total a Pagar:</span>
+                        <strong id="summary-total">$0.00 MXN</strong>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    let asientosOcupados = /*[[${asientosOcupados}]]*/ [];
+    let asientosSeleccionados = [];
+    const capacidadSala = /*[[${cine.capacidadSala}]]*/ 200;
+
+    function incrementQuantity() {
+        const input = document.getElementById('cantidad');
+        if (parseInt(input.value) < 10) {
+            input.value = parseInt(input.value) + 1;
+            generarSelectorAsientos();
+            calcularTotal();
+        }
+    }
+
+    function decrementQuantity() {
+        const input = document.getElementById('cantidad');
+        if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+            generarSelectorAsientos();
+            calcularTotal();
+        }
+    }
+
+    function generarSelectorAsientos() {
+        const cantidad = parseInt(document.getElementById('cantidad').value);
+        const container = document.getElementById('asientos-container');
+
+        container.innerHTML = '<h4>Selecciona los números de asiento:</h4>';
+
+        for (let i = 0; i < cantidad; i++) {
+            const div = document.createElement('div');
+            div.className = 'form-group';
+            div.innerHTML = `
+                    <label for="asiento_${i}">Asiento ${i + 1}:</label>
+                    <select id="asiento_${i}" name="asientos[]" required onchange="actualizarAsientos()">
+                        <option value="">-- Selecciona --</option>
+                    </select>
+                `;
+            container.appendChild(div);
+        }
+
+        cargarAsientosDisponibles();
+        generarMapaSala();
+    }
+
+    function cargarAsientosDisponibles() {
+        const cantidad = parseInt(document.getElementById('cantidad').value);
+
+        for (let i = 0; i < cantidad; i++) {
+            const select = document.getElementById(`asiento_${i}`);
+            select.innerHTML = '<option value="">-- Selecciona --</option>';
+
+            for (let j = 1; j <= capacidadSala; j++) {
+                if (!asientosOcupados.includes(j) && !asientosSeleccionados.includes(j)) {
+                    const option = document.createElement('option');
+                    option.value = j;
+                    option.textContent = `Asiento ${j}`;
+                    select.appendChild(option);
+                }
+            }
+        }
+    }
+
+    function actualizarAsientos() {
+        asientosSeleccionados = [];
+        const cantidad = parseInt(document.getElementById('cantidad').value);
+
+        for (let i = 0; i < cantidad; i++) {
+            const select = document.getElementById(`asiento_${i}`);
+            if (select && select.value) {
+                asientosSeleccionados.push(parseInt(select.value));
+            }
+        }
+
+        document.getElementById('summary-asientos').textContent =
+            asientosSeleccionados.length > 0 ? asientosSeleccionados.join(', ') : 'No seleccionados';
+
+        generarMapaSala();
+    }
+
+    function generarMapaSala() {
+        const salaVisual = document.getElementById('sala-visual');
+        salaVisual.innerHTML = "";
+        const filas = Math.ceil(capacidadSala / 10);
+
+        for (let f = 0; f < filas; f++) {
+            for (let a = 1; a <= 10; a++) {
+                const numAsiento = f * 10 + a;
+                if (numAsiento <= capacidadSala) {
+                    const asiento = document.createElement('div');
+                    asiento.className = 'asiento-visual';
+
+                    if (asientosOcupados.includes(numAsiento)) {
+                        asiento.classList.add('ocupado');
+                        asiento.textContent = '⬛';
+                    } else if (asientosSeleccionados.includes(numAsiento)) {
+                        asiento.classList.add('seleccionado');
+                        asiento.textContent = '🟦';
+                    } else {
+                        asiento.textContent = '⬜';
+                    }
+
+                    salaVisual.appendChild(asiento);
+                }
+            }
+        }
+    }
+
+    function calcularTotal() {
+        const formatoSeleccionado = document.querySelector('input[name="formatoId"]:checked');
+        const cantidad = parseInt(document.getElementById('cantidad').value);
+
+        if (formatoSeleccionado && cantidad) {
+            const precio = parseFloat(formatoSeleccionado.dataset.precio);
+            const nombreFormato = formatoSeleccionado.dataset.nombre;
+            const total = precio * cantidad;
+
+            document.getElementById('summary-formato').textContent = nombreFormato;
+            document.getElementById('summary-cantidad').textContent = cantidad;
+            document.getElementById('summary-precio-unitario').textContent = '$' + precio.toFixed(2);
+            document.getElementById('summary-total').textContent = '$' + total.toFixed(2) + ' MXN';
+        }
+    }
+
+    // Listeners
+    document.querySelectorAll('input[name="formatoId"]').forEach(radio => {
+        radio.addEventListener('change', calcularTotal);
+    });
+
+    document.querySelectorAll('input[name="horario"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById('summary-horario').textContent = this.value;
+        });
+    });
+
+    // Inicializar
+    generarSelectorAsientos();
+</script>
+</body>
+</html>

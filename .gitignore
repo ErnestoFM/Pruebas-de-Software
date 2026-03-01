@@ -1,0 +1,125 @@
+# Archivos y carpetas de sistema
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# Archivos de entorno y configuración local
+.env
+.env.*
+*.local
+*.secret
+*.key
+*.pem
+*.crt
+*.p12
+*.jks
+*.keystore
+
+# Maven y Java
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+*.iml
+*.class
+*.jar
+*.war
+*.ear
+
+# Archivos de configuración de IDE
+.idea/
+*.iws
+*.ipr
+*.bak
+*.swp
+*.swo
+
+# Archivos de test y reportes
+/test-classes/
+/surefire-reports/
+/coverage/
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+docker-compose*.yaml
+*.pid
+
+# Archivos de Nginx
+nginx/conf.d/*.conf
+
+# Otros
+node_modules/
+
+# Archivos de backup y temporales
+*~
+*.bak
+*.tmp
+*.temp
+
+# Archivos de seguridad
+secrets.*
+private.*
+
+# Excluir archivos de configuración personal
+*.vscode/
+
+# Excluir archivos de build
+/build/
+/dist/
+
+# Excluir archivos de sistema
+*.exe
+*.dll
+*.so
+*.bin
+*.out
+
+# Excluir archivos de configuración de usuario
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Excluir archivos de configuración de JetBrains
+.idea/
+*.iml
+
+# Excluir archivos de configuración de VSCode
+.vscode/
+
+# Excluir archivos de configuración de NetBeans
+nbproject/private/
+build/
+dist/
+
+# Excluir archivos de configuración de Eclipse
+.settings/
+.project
+.classpath
+
+# Excluir archivos de configuración de IntelliJ
+out/
+
+# Excluir archivos de configuración de logs
+*.log
+
+# Excluir archivos de configuración de test
+/test/
+
+# Excluir archivos de configuración de recursos
+*.properties
+!src/main/resources/*.properties
+!src/test/resources/*.properties
+
+# Excluir archivos de configuración de base de datos
+*.db
+*.sqlite
+*.h2.db
+
+# Excluir archivos de configuración de cache
+.cache/
+
+# Excluir archivos de configuración de lock
+*.lock
+

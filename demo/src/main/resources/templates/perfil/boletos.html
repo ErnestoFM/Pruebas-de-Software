@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="es">
+<head th:replace="~{fragments/header :: head(cssExtra='')}">
+    <title>Mis Boletos - TicketMaster</title>
+</head>
+
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<style>
+    .page-header {
+        color: white;
+        padding: 3rem 0;
+        text-align: center;
+        margin-bottom: 3rem;
+        background: #0f172a radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: #94a3b8;
+        font-size: 1.1rem;
+    }
+
+    /* CONTENEDOR DE BOLETOS */
+    .tickets-container {
+        max-width: 900px;
+        margin: 0 auto 5rem;
+        padding: 0 1rem;
+    }
+
+    /* ESTADO VACÍO (CUANDO NO HAY BOLETOS) */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border: 1px dashed #cbd5e1;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        filter: grayscale(1) opacity(0.5);
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: #64748b;
+        margin-bottom: 2rem;
+    }
+
+    /* EL BOLETO (TICKET CARD) */
+    .ticket-card {
+        display: flex;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #f1f5f9;
+        position: relative;
+    }
+
+    .ticket-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+    }
+
+    /* SECCIÓN IZQUIERDA (FECHA Y COLOR) */
+    .ticket-date {
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        color: white;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 130px;
+        text-align: center;
+    }
+
+    .ticket-date .mes { font-size: 1.2rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
+    .ticket-date .dia { font-size: 3rem; font-weight: 800; line-height: 1; margin: 5px 0; }
+    .ticket-date .anio { font-size: 1rem; opacity: 0.9; }
+
+    /* SECCIÓN CENTRAL (INFO DEL EVENTO) */
+    .ticket-info {
+        padding: 2rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .ticket-badge {
+        align-self: flex-start;
+        background: #f1f5f9;
+        color: #475569;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .ticket-badge.proximo { background: #dcfce7; color: #166534; }
+    .ticket-badge.pasado { background: #f1f5f9; color: #64748b; }
+
+    .ticket-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .ticket-venue {
+        color: #64748b;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* GRID DE ASIENTOS */
+    .seat-details {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid #e2e8f0;
+    }
+
+    .seat-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .seat-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
+    .seat-value { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+
+    /* SECCIÓN DERECHA (QR Y STUB) */
+    .ticket-action {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-left: 2px dashed #cbd5e1;
+        background: #fafafa;
+        min-width: 200px;
+        position: relative;
+    }
+
+    /* Los circulitos para el efecto de "recorte" del ticket */
+    .ticket-action::before, .ticket-action::after {
+        content: ''; position: absolute; left: -11px; width: 20px; height: 20px;
+        background: #f9fafb; /* Color del fondo de la página */
+        border-radius: 50%;
+    }
+    .ticket-action::before { top: -10px; box-shadow: inset 0 -2px 5px rgba(0,0,0,0.02); }
+    .ticket-action::after { bottom: -10px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); }
+
+    .qr-placeholder {
+        width: 100px; height: 100px;
+        background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 3rem; color: #1e293b;
+        margin-bottom: 1rem;
+    }
+
+    .btn-download {
+        background: white; color: #6366f1;
+        border: 1px solid #6366f1; padding: 8px 16px; border-radius: 50px;
+        font-size: 0.85rem; font-weight: 600; cursor: pointer;
+        transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-download:hover { background: #6366f1; color: white; }
+
+    /* ============================================
+       RESPONSIVO PARA CELULARES
+       ============================================ */
+    @media (max-width: 768px) {
+        .ticket-card {
+            flex-direction: column;
+        }
+        .ticket-date {
+            flex-direction: row;
+            gap: 15px;
+            padding: 1.5rem;
+            min-height: auto;
+        }
+        .ticket-date .mes { font-size: 1rem; }
+        .ticket-date .dia { font-size: 2rem; margin: 0; }
+
+        .ticket-action {
+            border-left: none;
+            border-top: 2px dashed #cbd5e1;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 1.5rem;
+        }
+
+        .ticket-action::before, .ticket-action::after {
+            left: auto; top: -11px;
+        }
+        .ticket-action::before { left: -10px; }
+        .ticket-action::after { right: -10px; bottom: auto; }
+
+        .qr-placeholder { width: 60px; height: 60px; margin-bottom: 0; font-size: 2rem; }
+    }
+</style>
+
+<main class="main-content">
+
+    <div class="page-header">
+        <div class="container">
+            <h1 class="page-title">Mis Boletos</h1>
+            <p class="page-subtitle">Administra tus entradas y próximos eventos</p>
+        </div>
+    </div>
+
+    <div class="tickets-container">
+
+        <div class="empty-state" style="display: none;">
+            <div class="empty-icon">🎟️</div>
+            <h3>Aún no tienes boletos</h3>
+            <p>Explora nuestra cartelera y descubre increíbles eventos culturales para ti.</p>
+            <a th:href="@{/}" class="btn btn-primary" style="background: #6366f1; color: white; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                Explorar Eventos
+            </a>
+        </div>
+
+        <div class="tickets-list">
+
+            <div class="ticket-card">
+                <div class="ticket-date">
+                    <span class="mes">Nov</span>
+                    <span class="dia">15</span>
+                    <span class="anio">2026</span>
+                </div>
+
+                <div class="ticket-info">
+                    <span class="ticket-badge proximo">Próximo Evento</span>
+                    <h3 class="ticket-title">El Lago de los Cisnes</h3>
+                    <div class="ticket-venue">
+                        <i class="fas fa-map-marker-alt"></i> Teatro Metropólitan, CDMX
+                    </div>
+
+                    <div class="seat-details">
+                        <div class="seat-item">
+                            <span class="seat-label">Sección</span>
+                            <span class="seat-value">Orquesta</span>
+                        </div>
+                        <div class="seat-item">
+                            <span class="seat-label">Fila</span>
+                            <span class="seat-value">F</span>
+                        </div>
+                        <div class="seat-item">
+                            <span class="seat-label">Asiento</span>
+                            <span class="seat-value">12</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ticket-action">
+                    <div class="qr-placeholder">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <a href="#" class="btn-download">
+                        <i class="fas fa-download"></i> Descargar
+                    </a>
+                </div>
+            </div>
+
+            <div class="ticket-card">
+                <div class="ticket-date" style="background: #94a3b8;">
+                    <span class="mes">Oct</span>
+                    <span class="dia">02</span>
+                    <span class="anio">2025</span>
+                </div>
+
+                <div class="ticket-info">
+                    <span class="ticket-badge pasado">Evento Pasado</span>
+                    <h3 class="ticket-title">Exposición: Monet en París</h3>
+                    <div class="ticket-venue">
+                        <i class="fas fa-map-marker-alt"></i> Museo Nacional de Arte
+                    </div>
+
+                    <div class="seat-details">
+                        <div class="seat-item">
+                            <span class="seat-label">Tipo</span>
+                            <span class="seat-value">General</span>
+                        </div>
+                        <div class="seat-item">
+                            <span class="seat-label">Acceso</span>
+                            <span class="seat-value">14:00 hrs</span>
+                        </div>
+                        <div class="seat-item">
+                            <span class="seat-label">Folio</span>
+                            <span class="seat-value">#98342</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ticket-action">
+                    <div class="qr-placeholder" style="opacity: 0.3;">
+                        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                    </div>
+                    <button class="btn-download" style="color: #64748b; border-color: #cbd5e1; cursor: not-allowed;">
+                        Completado
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

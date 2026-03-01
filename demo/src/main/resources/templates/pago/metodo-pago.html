@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="main-content">
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Inicio</a> /
+            <span>Método de Pago</span>
+        </div>
+
+        <div class="purchase-container">
+            <div class="purchase-main">
+                <h1>💳 Método de Pago</h1>
+
+                <form th:action="@{/pago/procesar}" method="post" id="formPago">
+                    <!-- Información oculta de la compra -->
+                    <input type="hidden" name="compraId" th:value="${compra.id}">
+                    <input type="hidden" name="tipoEvento" th:value="${compra.tipoEvento}">
+
+                    <!-- Selección de Método de Pago -->
+                    <div class="card">
+                        <h2>Selecciona tu Método de Pago</h2>
+
+                        <div class="payment-methods-grid">
+                            <div class="payment-method-option">
+                                <input type="radio"
+                                       id="metodo_debito"
+                                       name="metodoPago"
+                                       value="DEBITO"
+                                       checked
+                                       required>
+                                <label for="metodo_debito" class="payment-method-label">
+                                    <div class="payment-icon">💳</div>
+                                    <h3>Tarjeta de Débito</h3>
+                                    <p>Pago directo desde tu cuenta bancaria</p>
+                                </label>
+                            </div>
+
+                            <div class="payment-method-option">
+                                <input type="radio"
+                                       id="metodo_credito"
+                                       name="metodoPago"
+                                       value="CREDITO"
+                                       required>
+                                <label for="metodo_credito" class="payment-method-label">
+                                    <div class="payment-icon">💎</div>
+                                    <h3>Tarjeta de Crédito</h3>
+                                    <p>Visa, Mastercard, American Express</p>
+                                </label>
+                            </div>
+
+                            <div class="payment-method-option">
+                                <input type="radio"
+                                       id="metodo_paypal"
+                                       name="metodoPago"
+                                       value="PAYPAL"
+                                       required>
+                                <label for="metodo_paypal" class="payment-method-label">
+                                    <div class="payment-icon">🅿️</div>
+                                    <h3>PayPal</h3>
+                                    <p>Pago seguro con tu cuenta PayPal</p>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulario de Tarjeta -->
+                    <div class="card" id="formTarjeta">
+                        <h2>Datos de la Tarjeta</h2>
+
+                        <div class="form-group">
+                            <label for="numeroTarjeta">Número de Tarjeta *</label>
+                            <input type="text"
+                                   id="numeroTarjeta"
+                                   name="numeroTarjeta"
+                                   placeholder="1234 5678 9012 3456"
+                                   maxlength="19"
+                                   pattern="[0-9\s]+"
+                                   oninput="formatearNumeroTarjeta(this)"
+                                   required>
+                            <div class="card-brands">
+                                <img src="/images/visa.png" alt="Visa" class="card-brand-logo">
+                                <img src="/images/mastercard.png" alt="Mastercard" class="card-brand-logo">
+                                <img src="/images/amex.png" alt="American Express" class="card-brand-logo">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nombreTarjeta">Nombre del Titular *</label>
+                            <input type="text"
+                                   id="nombreTarjeta"
+                                   name="nombreTarjeta"
+                                   placeholder="Como aparece en la tarjeta"
+                                   pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
+                                   oninput="this.value = this.value.toUpperCase()"
+                                   required>
+                            <small class="form-help">Solo letras, sin números ni caracteres especiales</small>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="mesExpiracion">Fecha de Expiración *</label>
+                                <div class="expiration-group">
+                                    <select id="mesExpiracion" name="mesExpiracion" required>
+                                        <option value="">Mes</option>
+                                        <option value="01">01 - Enero</option>
+                                        <option value="02">02 - Febrero</option>
+                                        <option value="03">03 - Marzo</option>
+                                        <option value="04">04 - Abril</option>
+                                        <option value="05">05 - Mayo</option>
+                                        <option value="06">06 - Junio</option>
+                                        <option value="07">07 - Julio</option>
+                                        <option value="08">08 - Agosto</option>
+                                        <option value="09">09 - Septiembre</option>
+                                        <option value="10">10 - Octubre</option>
+                                        <option value="11">11 - Noviembre</option>
+                                        <option value="12">12 - Diciembre</option>
+                                    </select>
+                                    <span class="separator">/</span>
+                                    <select id="anioExpiracion" name="anioExpiracion" required>
+                                        <option value="">Año</option>
+                                        <option th:each="anio : ${#numbers.sequence(2026, 2036)}"
+                                                th:value="${anio}"
+                                                th:text="${anio}">2026</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cvv">CVV / CVC *</label>
+                                <input type="password"
+                                       id="cvv"
+                                       name="cvv"
+                                       placeholder="123"
+                                       maxlength="4"
+                                       pattern="[0-9]{3,4}"
+                                       required>
+                                <small class="form-help">
+                                    <span class="cvv-help">❓ ¿Qué es esto?</span>
+                                    Los 3 o 4 dígitos en el reverso de tu tarjeta
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tipoTarjeta">Tipo de Tarjeta *</label>
+                            <select id="tipoTarjeta" name="tipoTarjeta" required>
+                                <option value="">-- Selecciona --</option>
+                                <option value="DEBITO" th:selected="${metodoPago == 'DEBITO'}">Débito</option>
+                                <option value="CREDITO" th:selected="${metodoPago == 'CREDITO'}">Crédito</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Formulario de PayPal -->
+                    <div class="card" id="formPaypal" style="display: none;">
+                        <h2>Datos de PayPal</h2>
+
+                        <div class="paypal-info">
+                            <div class="paypal-logo">🅿️ PayPal</div>
+                            <p>Serás redirigido a PayPal para completar tu pago de forma segura.</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emailPaypal">Email de PayPal *</label>
+                            <input type="email"
+                                   id="emailPaypal"
+                                   name="emailPaypal"
+                                   placeholder="tu-email@paypal.com">
+                        </div>
+
+                        <div class="paypal-benefits">
+                            <h4>Beneficios de usar PayPal:</h4>
+                            <ul>
+                                <li>✓ Protección del comprador</li>
+                                <li>✓ No compartes datos de tu tarjeta</li>
+                                <li>✓ Pago en segundos</li>
+                                <li>✓ Reembolsos fáciles</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Dirección de Facturación -->
+                    <div class="card">
+                        <h2>Dirección de Facturación</h2>
+
+                        <div class="form-group">
+                            <label for="pais">País *</label>
+                            <select id="pais" name="pais" required>
+                                <option value="">-- Selecciona un país --</option>
+                                <option value="MX">México</option>
+                                <option value="US">Estados Unidos</option>
+                                <option value="CA">Canadá</option>
+                                <option value="ES">España</option>
+                                <option value="AR">Argentina</option>
+                                <option value="CO">Colombia</option>
+                                <option value="CL">Chile</option>
+                                <option value="PE">Perú</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="codigoPostal">Código Postal *</label>
+                            <input type="text"
+                                   id="codigoPostal"
+                                   name="codigoPostal"
+                                   placeholder="12345"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ciudad">Ciudad *</label>
+                            <input type="text"
+                                   id="ciudad"
+                                   name="ciudad"
+                                   placeholder="Ciudad"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="direccion">Dirección *</label>
+                            <input type="text"
+                                   id="direccion"
+                                   name="direccion"
+                                   placeholder="Calle, número, colonia"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- Términos y Condiciones -->
+                    <div class="card">
+                        <div class="terms-section">
+                            <div class="checkbox-group">
+                                <input type="checkbox"
+                                       id="aceptaTerminos"
+                                       name="aceptaTerminos"
+                                       required>
+                                <label for="aceptaTerminos">
+                                    Acepto los <a href="#" target="_blank">términos y condiciones</a>
+                                    y la <a href="#" target="_blank">política de privacidad</a> *
+                                </label>
+                            </div>
+
+                            <div class="checkbox-group">
+                                <input type="checkbox"
+                                       id="aceptaNoReembolsable"
+                                       name="aceptaNoReembolsable"
+                                       required>
+                                <label for="aceptaNoReembolsable">
+                                    Entiendo que esta compra no es reembolsable excepto en caso de
+                                    cancelación del evento *
+                                </label>
+                            </div>
+
+                            <div class="checkbox-group">
+                                <input type="checkbox"
+                                       id="recibirPromociones"
+                                       name="recibirPromociones">
+                                <label for="recibirPromociones">
+                                    Deseo recibir promociones y ofertas especiales por email
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seguridad -->
+                    <div class="security-badges">
+                        <div class="security-item">
+                            <span class="security-icon">🔒</span>
+                            <p>Pago 100% Seguro</p>
+                        </div>
+                        <div class="security-item">
+                            <span class="security-icon">✅</span>
+                            <p>Verificación SSL</p>
+                        </div>
+                        <div class="security-item">
+                            <span class="security-icon">🛡️</span>
+                            <p>Datos Encriptados</p>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="history.back()">
+                            ← Volver
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-large">
+                            <span class="btn-icon">💳</span>
+                            Realizar Pago - <span id="totalPagar" th:text="${compra.total}">$0.00</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Resumen del Pedido -->
+            <aside class="purchase-summary">
+                <div class="summary-card">
+                    <h2>Resumen del Pedido</h2>
+
+                    <div class="order-type-badge" th:text="${compra.tipoEvento}">
+                        Teatro
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Evento:</span>
+                        <strong th:text="${compra.nombreEvento}">La Bohème</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Lugar:</span>
+                        <strong th:text="${compra.nombreLugar}">Teatro Colón</strong>
+                    </div>
+
+                    <div class="summary-item" th:if="${compra.fecha}">
+                        <span>Fecha:</span>
+                        <strong th:text="${#temporals.format(compra.fecha, 'dd/MM/yyyy')}">01/02/2026</strong>
+                    </div>
+
+                    <div class="summary-item" th:if="${compra.horario}">
+                        <span>Horario:</span>
+                        <strong th:text="${compra.horario}">19:00</strong>
+                    </div>
+
+                    <div class="summary-item">
+                        <span>Cantidad:</span>
+                        <strong th:text="${compra.cantidad}">2</strong>
+                    </div>
+
+                    <div class="summary-item" th:if="${compra.asientos}">
+                        <span>Asientos:</span>
+                        <strong th:text="${compra.asientos}">A1, A2</strong>
+                    </div>
+
+                    <hr>
+
+                    <div class="summary-item">
+                        <span>Subtotal:</span>
+                        <strong th:text="'$' + ${compra.subtotal}">$300.00</strong>
+                    </div>
+
+                    <div class="summary-item" th:if="${compra.comision > 0}">
+                        <span>Comisión por servicio:</span>
+                        <strong th:text="'$' + ${compra.comision}">$30.00</strong>
+                    </div>
+
+                    <div class="summary-total">
+                        <span>Total a Pagar:</span>
+                        <strong th:text="'$' + ${compra.total} + ' ' + ${compra.moneda}">$330.00 MXN</strong>
+                    </div>
+
+                    <div class="delivery-info">
+                        <h4>📧 Entrega de Boletos</h4>
+                        <p>Tus boletos serán enviados por email inmediatamente después de confirmar el pago.</p>
+                    </div>
+
+                    <div class="support-info">
+                        <h4>💬 ¿Necesitas ayuda?</h4>
+                        <p>Contacta a soporte:</p>
+                        <p>📧 soporte@ticketmaster.com</p>
+                        <p>📱 +52 123 456 7890</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    // Cambiar entre formularios según método de pago
+    document.querySelectorAll('input[name="metodoPago"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const formTarjeta = document.getElementById('formTarjeta');
+            const formPaypal = document.getElementById('formPaypal');
+            const tipoTarjeta = document.getElementById('tipoTarjeta');
+
+            if (this.value === 'PAYPAL') {
+                formTarjeta.style.display = 'none';
+                formPaypal.style.display = 'block';
+
+                // Desactivar validación de tarjeta
+                document.getElementById('numeroTarjeta').removeAttribute('required');
+                document.getElementById('nombreTarjeta').removeAttribute('required');
+                document.getElementById('mesExpiracion').removeAttribute('required');
+                document.getElementById('anioExpiracion').removeAttribute('required');
+                document.getElementById('cvv').removeAttribute('required');
+                document.getElementById('tipoTarjeta').removeAttribute('required');
+
+                // Activar validación de PayPal
+                document.getElementById('emailPaypal').setAttribute('required', 'required');
+            } else {
+                formTarjeta.style.display = 'block';
+                formPaypal.style.display = 'none';
+
+                // Activar validación de tarjeta
+                document.getElementById('numeroTarjeta').setAttribute('required', 'required');
+                document.getElementById('nombreTarjeta').setAttribute('required', 'required');
+                document.getElementById('mesExpiracion').setAttribute('required', 'required');
+                document.getElementById('anioExpiracion').setAttribute('required', 'required');
+                document.getElementById('cvv').setAttribute('required', 'required');
+                document.getElementById('tipoTarjeta').setAttribute('required', 'required');
+
+                // Desactivar validación de PayPal
+                document.getElementById('emailPaypal').removeAttribute('required');
+
+                // Actualizar tipo de tarjeta
+                tipoTarjeta.value = this.value;
+            }
+        });
+    });
+
+    // Formatear número de tarjeta
+    function formatearNumeroTarjeta(input) {
+        let value = input.value.replace(/\s/g, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        input.value = formattedValue;
+    }
+
+    // Validar número de tarjeta (Algoritmo de Luhn)
+    function validarNumeroTarjeta(numero) {
+        numero = numero.replace(/\s/g, '');
+
+        if (!/^\d{13,19}$/.test(numero)) {
+            return false;
+        }
+
+        let suma = 0;
+        let doble = false;
+
+        for (let i = numero.length - 1; i >= 0; i--) {
+            let digito = parseInt(numero.charAt(i));
+
+            if (doble) {
+                digito *= 2;
+                if (digito > 9) {
+                    digito -= 9;
+                }
+            }
+
+            suma += digito;
+            doble = !doble;
+        }
+
+        return (suma % 10) === 0;
+    }
+
+    // Validar formulario antes de enviar
+    document.getElementById('formPago').addEventListener('submit', function(e) {
+        const metodoPago = document.querySelector('input[name="metodoPago"]:checked').value;
+
+        if (metodoPago !== 'PAYPAL') {
+            const numeroTarjeta = document.getElementById('numeroTarjeta').value;
+
+            if (!validarNumeroTarjeta(numeroTarjeta)) {
+                e.preventDefault();
+                alert('El número de tarjeta no es válido. Por favor verifica.');
+                return false;
+            }
+
+            // Validar fecha de expiración
+            const mes = parseInt(document.getElementById('mesExpiracion').value);
+            const anio = parseInt(document.getElementById('anioExpiracion').value);
+            const hoy = new Date();
+            const fechaExp = new Date(anio, mes - 1);
+
+            if (fechaExp < hoy) {
+                e.preventDefault();
+                alert('La tarjeta ha expirado. Por favor usa otra tarjeta.');
+                return false;
+            }
+        }
+
+        // Mostrar loading
+        const btnSubmit = this.querySelector('button[type="submit"]');
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<span class="spinner">⏳</span> Procesando pago...';
+    });
+
+    // Detectar tipo de tarjeta por número
+    document.getElementById('numeroTarjeta').addEventListener('input', function() {
+        const numero = this.value.replace(/\s/g, '');
+        const cardBrands = document.querySelectorAll('.card-brand-logo');
+
+        // Resetear
+        cardBrands.forEach(img => img.style.opacity = '0.3');
+
+        if (/^4/.test(numero)) {
+            // Visa
+            cardBrands[0].style.opacity = '1';
+        } else if (/^5[1-5]/.test(numero)) {
+            // Mastercard
+            cardBrands[1].style.opacity = '1';
+        } else if (/^3[47]/.test(numero)) {
+            // American Express
+            cardBrands[2].style.opacity = '1';
+        }
+    });
+</script>
+</body>
+</html>

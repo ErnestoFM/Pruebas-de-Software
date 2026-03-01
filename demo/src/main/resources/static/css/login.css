@@ -1,0 +1,366 @@
+/* --- RESET Y FONDO --- */
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, sans-serif;
+    background-color: #f3f4f6;
+    /* ✅ Regresamos el Flex al body porque ya no hay navbar */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* --- CONTENEDOR PRINCIPAL --- */
+.auth-container {
+    width: 100%;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.auth-wrapper {
+    display: flex;
+    width: 100%;
+    /* ✅ Más ancho: Subimos de 1000px a 1200px para que abarque más pantalla */
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 1.5rem; /* Bordes más modernos */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
+    overflow: hidden;
+}
+
+/* --- LADO IZQUIERDO (Info + 3D) --- */
+.auth-info-section {
+    flex: 1.1; /* Le damos un poquito más de ancho visual a este lado */
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: white;
+    padding: 4rem; /* ✅ Más padding para rellenar el nuevo ancho */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ✅ NUEVO: CONTENEDOR PARA EL MUÑECO 3D (SPLINE) */
+.spline-character-container {
+    width: 100%;
+    height: 400px; /* Alto fijo para el espacio del modelo 3D */
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+    z-index: 2;
+}
+
+/* Hace que el visor ocupe el espacio sin desbordarse */
+.spline-character-container spline-viewer {
+    position: absolute;
+
+    width: 140%;
+    height: 140%;
+
+    top: -15%;
+    left: -15%;
+}
+
+.auth-logo {
+    text-decoration: none;
+    color: white;
+    margin-bottom: 1rem;
+    z-index: 2;
+}
+
+.auth-logo h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.auth-info-section h2 {
+    font-size: 2.2rem;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    z-index: 2;
+}
+
+.auth-info-section p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    z-index: 2;
+}
+
+.auth-features {
+    margin-top: auto;
+    z-index: 2;
+}
+
+.auth-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.feature-icon {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0; /* Evita que el circulo se aplaste */
+}
+
+/* --- DECORACIÓN DE FONDO --- */
+.auth-decoration {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+.decoration-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.4;
+}
+.blob-1 { top: -10%; left: -10%; width: 300px; height: 300px; background: #6366f1; }
+.blob-2 { bottom: -20%; right: -10%; width: 400px; height: 400px; background: #818cf8; }
+
+/* --- LADO DERECHO (Formulario) --- */
+.auth-form-section {
+    flex: 1;
+    padding: 4rem; /* ✅ Mismo padding que la izquierda */
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-form-header h2 {
+    color: #1e293b;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-form-header p {
+    color: #64748b;
+    margin-bottom: 2rem;
+}
+
+/* --- INPUTS Y FORMULARIO --- */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #334155;
+    font-size: 0.95rem;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    color: #94a3b8;
+}
+
+.input-with-icon input {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 2.5rem; /* Inputs un poco más altos */
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all 0.2s;
+}
+
+.input-with-icon input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.toggle-password {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94a3b8;
+}
+
+/* --- OPCIONES EXTRA --- */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #475569;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.forgot-link {
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* --- BOTONES --- */
+.btn-auth-primary {
+    width: 100%;
+    padding: 1rem;
+    background: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.btn-auth-primary:hover {
+    background: #4338ca;
+}
+
+/* --- DIVISOR Y REDES SOCIALES --- */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    margin: 2rem 0;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid #e2e8f0;
+}
+
+.auth-divider span {
+    padding: 0 1rem;
+}
+
+.social-login {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.btn-social {
+    flex: 1;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #334155;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-social:hover {
+    background: #f8fafc;
+}
+
+.auth-footer {
+    text-align: center;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.auth-link {
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* --- ALERTAS --- */
+.alert {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.alert p { margin: 0; font-size: 0.9rem; }
+.alert-error { background: #fef2f2; border: 1px solid #fee2e2; color: #991b1b; }
+.alert-success { background: #ecfdf5; border: 1px solid #d1fae5; color: #065f46; }
+
+/* --- ✅ OBJETIVO 2: RESPONSIVE (Móviles y Tablets) --- */
+@media (max-width: 900px) {
+    .auth-wrapper {
+        flex-direction: column; /* Coloca la info arriba y el formulario abajo */
+        max-width: 500px; /* Evita que el formulario quede demasiado ancho en tablet */
+    }
+
+    .auth-info-section {
+        padding: 3rem 2rem;
+        text-align: center; /* Centramos texto en móvil */
+    }
+
+    .spline-character-container {
+        width: 100%;
+        height: 350px;
+        position: relative; /* Necesario para mover el hijo libremente */
+        margin-bottom: 2rem;
+        z-index: 2;
+        overflow: hidden; /* 🥷 ¡LA MAGIA! Esto recorta/oculta cualquier cosa que se salga de la caja */
+    }
+
+    .spline-character-container spline-viewer {
+        position: absolute;
+        /* Al aumentar estos porcentajes, haces más grande al mono y empujas el logo más lejos */
+        top: -15%;
+        left: -15%;
+        width: 130%;
+        height: 130%;
+    }
+
+    /* Ocultamos los features en móvil para ahorrar espacio vertical */
+    .auth-features {
+        display: none;
+    }
+
+    .auth-form-section {
+        padding: 3rem 2rem;
+    }
+
+    .social-login {
+        flex-direction: column; /* Botones sociales uno encima del otro */
+    }
+}

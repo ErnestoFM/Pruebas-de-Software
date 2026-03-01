@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="es">
+<head th:replace="~{fragments/header :: head(cssExtra='')}">
+    <title>Configuración - TicketMaster</title>
+</head>
+
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<style>
+    /* Reutilizamos la estructura base del Perfil */
+    .profile-page { background-color: #f8fafc; min-height: calc(100vh - 80px); padding: 3rem 1rem; }
+    .profile-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 280px 1fr; gap: 2rem; align-items: start; }
+
+    /* SIDEBAR (Idéntico al perfil) */
+    .profile-sidebar { background: white; border-radius: 1.25rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 2rem 1.5rem; border: 1px solid #f1f5f9; position: sticky; top: 100px; }
+    .sidebar-user { text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #e2e8f0; }
+    .avatar-large { width: 100px; height: 100px; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: 800; margin: 0 auto 1rem; box-shadow: 0 10px 20px rgba(236, 72, 153, 0.3); }
+    .sidebar-user-name { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 0.25rem; word-break: break-all; }
+    .sidebar-user-role { font-size: 0.85rem; color: #64748b; background: #f1f5f9; padding: 4px 12px; border-radius: 50px; display: inline-block; }
+    .profile-nav { display: flex; flex-direction: column; gap: 0.5rem; }
+    .profile-nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 0.75rem; color: #475569; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+    .profile-nav-link i { font-size: 1.2rem; width: 20px; text-align: center; }
+    .profile-nav-link:hover { background: #f8fafc; color: #6366f1; }
+    .profile-nav-link.active { background: #eef2ff; color: #4f46e5; } /* Configuración está activa aquí */
+
+    /* CONTENIDO PRINCIPAL */
+    .profile-content { display: flex; flex-direction: column; gap: 2rem; }
+
+    .config-section {
+        background: white;
+        border-radius: 1.25rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        padding: 2.5rem;
+        border: 1px solid #f1f5f9;
+    }
+
+    .section-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .section-title { font-size: 1.5rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 10px; }
+    .section-title i { color: #6366f1; }
+
+    .btn-outline { background: white; color: #6366f1; border: 2px solid #e0e7ff; padding: 8px 16px; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 0.9rem; }
+    .btn-outline:hover { background: #eef2ff; border-color: #c7d2fe; }
+
+    /* MÉTODOS DE PAGO */
+    .payment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .payment-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+        background: #f8fafc;
+    }
+    .payment-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.05); border-color: #cbd5e1; }
+
+    .payment-info { display: flex; align-items: center; gap: 1rem; }
+    .payment-icon { font-size: 2.5rem; }
+    .icon-visa { color: #1a1f71; }
+    .icon-mastercard { color: #eb001b; }
+    .icon-paypal { color: #00457c; }
+
+    .payment-details h4 { color: #1e293b; font-size: 1rem; margin-bottom: 0.25rem; font-weight: 700; }
+    .payment-details p { color: #64748b; font-size: 0.85rem; }
+
+    .payment-actions { display: flex; gap: 10px; }
+    .btn-icon { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.1rem; transition: color 0.2s; }
+    .btn-icon:hover { color: #ef4444; }
+
+    /* FACTURACIÓN (Formulario y Toggle) */
+    .billing-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .form-group label { font-size: 0.9rem; font-weight: 600; color: #475569; }
+    .form-group input, .form-group select { padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem; color: #1e293b; outline: none; transition: border-color 0.2s; }
+    .form-group input:focus, .form-group select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+
+    /* Toggle Switch (Interruptor tipo iOS) */
+    .toggle-container { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 1.25rem 1.5rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; }
+    .toggle-text h4 { font-size: 1rem; color: #1e293b; margin-bottom: 0.25rem; }
+    .toggle-text p { font-size: 0.85rem; color: #64748b; }
+
+    .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: #10b981; }
+    input:checked + .slider:before { transform: translateX(22px); }
+
+    /* HISTORIAL DE COMPRAS (Tabla) */
+    .table-responsive { overflow-x: auto; border-radius: 0.75rem; border: 1px solid #e2e8f0; }
+    .history-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .history-table th { background: #f8fafc; text-align: left; padding: 1rem 1.5rem; font-weight: 600; color: #475569; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; }
+    .history-table td { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; color: #1e293b; font-size: 0.95rem; vertical-align: middle; }
+    .history-table tr:last-child td { border-bottom: none; }
+    .history-table tr:hover { background: #fdfefb; }
+
+    .status-badge { padding: 4px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; display: inline-block; }
+    .status-success { background: #dcfce7; color: #166534; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+    .invoice-link { color: #6366f1; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
+    .invoice-link:hover { text-decoration: underline; color: #4f46e5; }
+    .invoice-link.disabled { color: #94a3b8; cursor: not-allowed; text-decoration: none; }
+
+    /* RESPONSIVO */
+    @media (max-width: 992px) {
+        .profile-container { grid-template-columns: 1fr; }
+        .profile-sidebar { position: static; }
+        .profile-nav { flex-direction: row; overflow-x: auto; padding-bottom: 10px; -ms-overflow-style: none; scrollbar-width: none; }
+        .profile-nav::-webkit-scrollbar { display: none; }
+    }
+    @media (max-width: 768px) {
+        .config-section { padding: 1.5rem; }
+        .payment-card { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        .payment-actions { align-self: flex-end; }
+    }
+</style>
+
+<div class="profile-page">
+    <div class="profile-container container">
+
+        <aside class="profile-sidebar">
+            <div class="sidebar-user">
+                <div class="avatar-large" th:text="${#strings.substring(#authentication.name, 0, 1)}">U</div>
+                <h3 class="sidebar-user-name" th:text="${#authentication.name}">USERNAME_CURP</h3>
+                <span class="sidebar-user-role" th:each="auth : ${#authentication.authorities}" th:text="${auth.authority}">ROLE_USER</span>
+            </div>
+
+            <nav class="profile-nav">
+                <a th:href="@{/perfil}" class="profile-nav-link">
+                    <i class="fas fa-id-card"></i> Mis Datos
+                </a>
+                <a th:href="@{/perfil/mis-boletos}" class="profile-nav-link">
+                    <i class="fas fa-ticket-alt"></i> Mis Boletos
+                </a>
+                <a th:href="@{/perfil/configuracion}" class="profile-nav-link active">
+                    <i class="fas fa-cog"></i> Configuración
+                </a>
+            </nav>
+        </aside>
+
+        <main class="profile-content">
+
+            <section class="config-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-wallet"></i> Métodos de Pago</h2>
+                    <button class="btn-outline"><i class="fas fa-plus"></i> Añadir Método</button>
+                </div>
+
+                <div class="payment-grid">
+                    <div class="payment-card">
+                        <div class="payment-info">
+                            <i class="fab fa-cc-visa payment-icon icon-visa"></i>
+                            <div class="payment-details">
+                                <h4>Tarjeta de Crédito</h4>
+                                <p>Termina en •••• 4242 (Exp: 12/28)</p>
+                            </div>
+                        </div>
+                        <div class="payment-actions">
+                            <button class="btn-icon" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="payment-card">
+                        <div class="payment-info">
+                            <i class="fab fa-cc-mastercard payment-icon icon-mastercard"></i>
+                            <div class="payment-details">
+                                <h4>Tarjeta de Débito</h4>
+                                <p>Termina en •••• 8899 (Exp: 05/27)</p>
+                            </div>
+                        </div>
+                        <div class="payment-actions">
+                            <button class="btn-icon" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="payment-card">
+                        <div class="payment-info">
+                            <i class="fab fa-cc-paypal payment-icon icon-paypal"></i>
+                            <div class="payment-details">
+                                <h4>Cuenta PayPal</h4>
+                                <p>vinculada a hola@gmail.com</p>
+                            </div>
+                        </div>
+                        <div class="payment-actions">
+                            <button class="btn-icon" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="config-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-file-invoice-dollar"></i> Datos de Facturación</h2>
+                    <button class="btn-outline"><i class="fas fa-save"></i> Guardar Cambios</button>
+                </div>
+
+                <div class="billing-form">
+                    <div class="form-group">
+                        <label>RFC</label>
+                        <input type="text" placeholder="Ej. ABCD123456EF7" value="XAXX010101000">
+                    </div>
+                    <div class="form-group">
+                        <label>Razón Social / Nombre Completo</label>
+                        <input type="text" placeholder="Nombre para la factura" value="Ernesto Hatuey Fierro Meléndez">
+                    </div>
+                    <div class="form-group">
+                        <label>Código Postal</label>
+                        <input type="text" placeholder="12345" value="45400">
+                    </div>
+                    <div class="form-group">
+                        <label>Régimen Fiscal</label>
+                        <select>
+                            <option value="601">601 - General de Ley Personas Morales</option>
+                            <option value="605" selected>605 - Sueldos y Salarios e Ingresos Asimilados a Salarios</option>
+                            <option value="612">612 - Personas Físicas con Actividades Empresariales</option>
+                            <option value="626">626 - Régimen Simplificado de Confianza (RESICO)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="toggle-container">
+                    <div class="toggle-text">
+                        <h4>Generación Automática de Facturas</h4>
+                        <p>Al encender esto, se generará y enviará una factura a tu correo después de cada compra.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </section>
+
+            <section class="config-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-history"></i> Historial de Compras</h2>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="history-table">
+                        <thead>
+                        <tr>
+                            <th>ID Pedido</th>
+                            <th>Fecha</th>
+                            <th>Evento</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Factura</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><strong>#TK-99384</strong></td>
+                            <td>15 Nov 2025</td>
+                            <td>El Lago de los Cisnes</td>
+                            <td>$1,500.00 MXN</td>
+                            <td><span class="status-badge status-success">Completado</span></td>
+                            <td>
+                                <a href="#" class="invoice-link"><i class="fas fa-file-pdf"></i> PDF</a>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><strong>#TK-98102</strong></td>
+                            <td>02 Oct 2025</td>
+                            <td>Monet en París (Museo)</td>
+                            <td>$450.00 MXN</td>
+                            <td><span class="status-badge status-pending">Procesando</span></td>
+                            <td>
+                                <span class="invoice-link disabled"><i class="fas fa-clock"></i> Pendiente</span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><strong>#TK-87455</strong></td>
+                            <td>28 Ago 2025</td>
+                            <td>Cinemark Premium (2 Boletos)</td>
+                            <td>$320.00 MXN</td>
+                            <td><span class="status-badge status-cancelled">Rechazado</span></td>
+                            <td>
+                                <span class="invoice-link disabled">-</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

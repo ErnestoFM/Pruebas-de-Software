@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="main-content">
+    <div class="container">
+        <div class="confirmation-page">
+            <!-- Mensaje de Éxito -->
+            <div class="success-animation">
+                <div class="checkmark-circle">
+                    <div class="checkmark">✓</div>
+                </div>
+            </div>
+
+            <div class="confirmation-header">
+                <h1>¡Compra Realizada con Éxito!</h1>
+                <p class="confirmation-subtitle">
+                    Gracias por tu compra. Tus boletos han sido enviados a tu correo electrónico.
+                </p>
+            </div>
+
+            <!-- Información de la Compra -->
+            <div class="confirmation-card">
+                <div class="card-header">
+                    <h2>Detalles de tu Compra</h2>
+                    <span class="order-number">
+                            Orden #<span th:text="${confirmacion.numeroOrden}">TM-2026-001234</span>
+                        </span>
+                </div>
+
+                <div class="purchase-details">
+                    <!-- Tipo de Evento -->
+                    <div class="detail-section">
+                        <div class="event-type-badge" th:text="${confirmacion.tipoEvento}">
+                            🎭 Teatro
+                        </div>
+                    </div>
+
+                    <!-- Información del Evento -->
+                    <div class="detail-section">
+                        <h3>Información del Evento</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Evento:</span>
+                                <span class="detail-value" th:text="${confirmacion.nombreEvento}">La Bohème</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Lugar:</span>
+                                <span class="detail-value" th:text="${confirmacion.nombreLugar}">Teatro Colón</span>
+                            </div>
+                            <div class="detail-item" th:if="${confirmacion.ubicacion}">
+                                <span class="detail-label">Ubicación:</span>
+                                <span class="detail-value" th:text="${confirmacion.ubicacion}">Buenos Aires, Argentina</span>
+                            </div>
+                            <div class="detail-item" th:if="${confirmacion.fecha}">
+                                <span class="detail-label">Fecha:</span>
+                                <span class="detail-value"
+                                      th:text="${#temporals.format(confirmacion.fecha, 'EEEE, dd \'de\' MMMM \'de\' yyyy', #locale)}">
+                                    Sábado, 15 de febrero de 2026
+                                </span>
+                            </div>
+                            <div class="detail-item" th:if="${confirmacion.horario}">
+                                <span class="detail-label">Horario:</span>
+                                <span class="detail-value" th:text="${confirmacion.horario}">19:00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Boletos -->
+                    <div class="detail-section">
+                        <h3>Información de Boletos</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Cantidad:</span>
+                                <span class="detail-value" th:text="${confirmacion.cantidad}">2 boletos</span>
+                            </div>
+                            <div class="detail-item" th:if="${confirmacion.seccion}">
+                                <span class="detail-label">Sección:</span>
+                                <span class="detail-value" th:text="${confirmacion.seccion}">Luneta</span>
+                            </div>
+                            <div class="detail-item" th:if="${confirmacion.asientos}">
+                                <span class="detail-label">Asientos:</span>
+                                <span class="detail-value" th:text="${confirmacion.asientos}">A1, A2</span>
+                            </div>
+                            <div class="detail-item" th:if="${confirmacion.formato}">
+                                <span class="detail-label">Formato:</span>
+                                <span class="detail-value" th:text="${confirmacion.formato}">IMAX</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de Pago -->
+                    <div class="detail-section">
+                        <h3>Información de Pago</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Método de pago:</span>
+                                <span class="detail-value">
+                                        <span th:if="${confirmacion.metodoPago == 'DEBITO'}">💳 Tarjeta de Débito</span>
+                                        <span th:if="${confirmacion.metodoPago == 'CREDITO'}">💎 Tarjeta de Crédito</span>
+                                        <span th:if="${confirmacion.metodoPago == 'PAYPAL'}">🅿️ PayPal</span>
+                                    </span>
+                            </div>
+                            <div class="detail-item" th:if="${confirmacion.ultimos4Digitos}">
+                                <span class="detail-label">Tarjeta:</span>
+                                <span class="detail-value">**** **** **** <span th:text="${confirmacion.ultimos4Digitos}">1234</span></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Fecha de compra:</span>
+                                <span class="detail-value" th:text="${#temporals.format(confirmacion.fechaCompra, 'dd/MM/yyyy HH:mm')}">01/02/2026 14:30</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Desglose de Costos -->
+                    <div class="detail-section cost-breakdown">
+                        <h3>Desglose de Costos</h3>
+                        <div class="cost-grid">
+                            <div class="cost-item">
+                                <span>Subtotal:</span>
+                                <span th:text="'$' + ${confirmacion.subtotal}">$300.00</span>
+                            </div>
+                            <div class="cost-item" th:if="${confirmacion.comision > 0}">
+                                <span>Comisión por servicio:</span>
+                                <span th:text="'$' + ${confirmacion.comision}">$30.00</span>
+                            </div>
+                            <div class="cost-item" th:if="${confirmacion.impuestos > 0}">
+                                <span>Impuestos:</span>
+                                <span th:text="'$' + ${confirmacion.impuestos}">$48.00</span>
+                            </div>
+                            <div class="cost-total">
+                                <span>Total Pagado:</span>
+                                <strong th:text="'$' + ${confirmacion.total} + ' ' + ${confirmacion.moneda}">$378.00 MXN</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información del Comprador -->
+                    <div class="detail-section">
+                        <h3>Información del Comprador</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Nombre:</span>
+                                <span class="detail-value" th:text="${confirmacion.nombreComprador}">Juan Pérez</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Email:</span>
+                                <span class="detail-value" th:text="${confirmacion.emailComprador}">juan@email.com</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instrucciones Especiales -->
+                    <div class="detail-section special-instructions" th:if="${confirmacion.instrucciones}">
+                        <h3>📋 Instrucciones Importantes</h3>
+                        <div class="instructions-list" th:utext="${confirmacion.instrucciones}">
+                            <!-- Instrucciones específicas del tipo de evento -->
+                        </div>
+                    </div>
+
+                    <!-- Vestimenta (Teatro) -->
+                    <div class="detail-section dress-code" th:if="${confirmacion.vestimenta}">
+                        <h3>👔 Código de Vestimenta</h3>
+                        <div class="dress-info">
+                            <span class="dress-icon">👔</span>
+                            <p th:text="${confirmacion.vestimenta}">Formal / Elegante Casual</p>
+                        </div>
+                    </div>
+
+                    <!-- Restricciones -->
+                    <div class="detail-section restrictions" th:if="${confirmacion.restricciones}">
+                        <h3>⚠️ Restricciones de Acceso</h3>
+                        <div class="restrictions-grid">
+                            <div class="restriction-item" th:each="restriccion : ${confirmacion.restricciones}">
+                                <span th:text="${restriccion.icono}">🚫</span>
+                                <p th:text="${restriccion.texto}">Restricción</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boletos Digitales -->
+            <div class="tickets-section">
+                <h2>🎫 Tus Boletos Digitales</h2>
+                <p class="tickets-subtitle">Tus boletos han sido enviados a: <strong th:text="${confirmacion.emailComprador}">email@ejemplo.com</strong></p>
+
+                <div class="tickets-grid">
+                    <div class="digital-ticket" th:each="boleto, iterStat : ${confirmacion.boletos}">
+                        <div class="ticket-header">
+                            <span class="ticket-number">Boleto #<span th:text="${iterStat.count}">1</span></span>
+                            <span class="ticket-qr">📱</span>
+                        </div>
+                        <div class="ticket-body">
+                            <h4 th:text="${confirmacion.nombreEvento}">Evento</h4>
+                            <p th:text="${confirmacion.nombreLugar}">Lugar</p>
+                            <div class="ticket-details">
+                                <span th:if="${confirmacion.fecha}" th:text="${#temporals.format(confirmacion.fecha, 'dd/MM/yyyy')}">15/02/2026</span>
+                                <span th:if="${confirmacion.horario}" th:text="${confirmacion.horario}">19:00</span>
+                                <span th:if="${boleto.asiento}">Asiento: <span th:text="${boleto.asiento}">A1</span></span>
+                            </div>
+                        </div>
+                        <div class="ticket-footer">
+                            <div class="qr-code-placeholder">
+                                <div class="qr-pattern"></div>
+                                <p>Código QR</p>
+                            </div>
+                            <p class="ticket-code" th:text="${boleto.codigo}">TM-ABC123</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tickets-actions">
+                    <a th:href="@{/confirmacion/descargar-pdf(orden=${confirmacion.numeroOrden})}"
+                       class="btn btn-secondary" download>
+                        📥 Descargar PDF
+                    </a>
+                    <a th:href="@{/confirmacion/enviar-email(orden=${confirmacion.numeroOrden})}"
+                       class="btn btn-outline">
+                        📧 Reenviar por Email
+                    </a>
+                </div>
+            </div>
+
+            <!-- Próximos Pasos -->
+            <div class="next-steps-section">
+                <h2>📌 Próximos Pasos</h2>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h4>Revisa tu Email</h4>
+                        <p>Hemos enviado tus boletos y la confirmación de compra a tu correo electrónico.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h4>Guarda tus Boletos</h4>
+                        <p>Descarga el PDF o agrega los boletos a tu Apple Wallet o Google Pay.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h4>Llega Temprano</h4>
+                        <p>Te recomendamos llegar al menos 30 minutos antes del evento.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <h4>Presenta tu Boleto</h4>
+                        <p>Muestra el código QR en tu dispositivo móvil o imprime el PDF.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de Contacto -->
+            <div class="contact-section">
+                <h3>¿Necesitas ayuda?</h3>
+                <div class="contact-grid">
+                    <div class="contact-option">
+                        <span class="contact-icon">📧</span>
+                        <h4>Email</h4>
+                        <p>soporte@ticketmaster.com</p>
+                    </div>
+                    <div class="contact-option">
+                        <span class="contact-icon">📱</span>
+                        <h4>WhatsApp</h4>
+                        <p>+52 123 456 7890</p>
+                    </div>
+                    <div class="contact-option">
+                        <span class="contact-icon">💬</span>
+                        <h4>Chat en Vivo</h4>
+                        <p>Lun-Vie 9:00-20:00</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="confirmation-actions">
+                <a th:href="@{/}" class="btn btn-primary">
+                    🏠 Volver al Inicio
+                </a>
+                <a th:href="@{/mis-compras}" class="btn btn-outline">
+                    📋 Ver Mis Compras
+                </a>
+                <button onclick="window.print()" class="btn btn-secondary">
+                    🖨️ Imprimir Confirmación
+                </button>
+            </div>
+
+            <!-- Compartir en Redes Sociales -->
+            <div class="social-share">
+                <p>¡Comparte tu experiencia!</p>
+                <div class="social-buttons">
+                    <a href="#" class="social-btn facebook">📘 Facebook</a>
+                    <a href="#" class="social-btn twitter">🐦 Twitter</a>
+                    <a href="#" class="social-btn instagram">📷 Instagram</a>
+                    <a href="#" class="social-btn whatsapp">💬 WhatsApp</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script>
+    // Animación del checkmark al cargar
+    window.addEventListener('load', function() {
+        const checkmark = document.querySelector('.checkmark-circle');
+        checkmark.classList.add('animate');
+    });
+
+    // Confetti animation (opcional)
+    function createConfetti() {
+        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7'];
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 3 + 's';
+            document.body.appendChild(confetti);
+
+            setTimeout(() => confetti.remove(), 5000);
+        }
+    }
+
+    // Opcional: activar confetti
+    // createConfetti();
+</script>
+
+<style>
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            transform: scale(0);
+        }
+        to {
+            transform: scale(1);
+        }
+    }
+
+    .checkmark-circle {
+        animation: scaleIn 0.5s ease-out;
+    }
+
+    .confirmation-card {
+        animation: slideDown 0.6s ease-out;
+    }
+
+    @media print {
+        .confirmation-actions,
+        .social-share,
+        header,
+        footer,
+        .breadcrumb {
+            display: none !important;
+        }
+
+        .confirmation-page {
+            padding: 0;
+        }
+    }
+</style>
+</body>
+</html>

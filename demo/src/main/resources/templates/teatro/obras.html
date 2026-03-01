@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="main-content">
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Inicio</a> /
+            <a th:href="@{/teatro}">Teatro</a> /
+            <span th:text="${teatroNombre}">Teatro</span>
+        </div>
+
+        <section class="page-header">
+            <h1 th:text="${teatroNombre}">Teatro</h1>
+            <p>Selecciona la obra que deseas ver</p>
+        </section>
+
+        <div class="obras-grid">
+            <div class="obra-card" th:each="obra : ${obras}">
+                <div class="obra-image">
+                    <img th:src="@{/images/obras/{imagen}(imagen=${obra.imagen})}"
+                         th:alt="${obra.titulo}"
+                         onerror="this.src='/images/placeholder-teatro.jpg'">
+                    <div class="obra-badge" th:text="${obra.genero}">Drama</div>
+                </div>
+                <div class="obra-content">
+                    <h3 th:text="${obra.titulo}">Título de la Obra</h3>
+                    <p class="obra-director">
+                        <strong>Director:</strong> <span th:text="${obra.director}">Director</span>
+                    </p>
+                    <p class="obra-duracion">
+                        ⏱️ Duración: <span th:text="${obra.duracion}">120 min</span>
+                    </p>
+                    <p class="obra-descripcion" th:text="${obra.descripcion}">
+                        Descripción de la obra teatral.
+                    </p>
+
+                    <div class="horarios-section">
+                        <h4>Horarios Disponibles:</h4>
+                        <div class="horarios-grid">
+                                <span class="horario-badge" th:each="horario : ${obra.horarios}"
+                                      th:text="${horario}">19:00</span>
+                        </div>
+                    </div>
+
+                    <div class="secciones-precios">
+                        <h4>Secciones y Precios:</h4>
+                        <div class="precio-grid">
+                            <div class="precio-item" th:each="seccion : ${obra.secciones}">
+                                <span class="seccion-nombre" th:text="${seccion.nombre}">Luneta</span>
+                                <span class="seccion-precio" th:text="'$' + ${seccion.precio}">$1,500</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/teatro/compra(teatro=${teatro},obra=${obra.id})}"
+                       class="btn btn-primary btn-block">
+                        Comprar Boletos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

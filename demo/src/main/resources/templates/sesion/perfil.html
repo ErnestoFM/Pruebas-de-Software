@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="es">
+<head th:replace="~{fragments/header :: head}">
+    <title>Mi Perfil - TicketMaster</title>
+</head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="main-content">
+    <div class="container">
+        <div class="breadcrumb">
+            <a th:href="@{/}">Inicio</a> / <span>Mi Perfil</span>
+        </div>
+
+        <div class="profile-layout">
+            <!-- Sidebar -->
+            <aside class="profile-sidebar">
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <img th:src="${usuario.avatarUrl}"
+                             th:alt="${usuario.nombre}"
+                             onerror="this.src='/images/default-avatar.png'">
+                        <button class="avatar-edit-btn" onclick="document.getElementById('avatarInput').click()">
+                            <span>📷</span>
+                        </button>
+                        <input type="file"
+                               id="avatarInput"
+                               accept="image/*"
+                               style="display: none;"
+                               onchange="uploadAvatar(this)">
+                    </div>
+                    <h3 th:text="${usuario.nombre + ' ' + usuario.apellido}">Nombre Usuario</h3>
+                    <p class="profile-email" th:text="${usuario.email}">email@example.com</p>
+                    <div class="profile-badge">
+                        <span class="badge badge-premium">⭐ Usuario Premium</span>
+                    </div>
+                </div>
+
+                <nav class="profile-nav">
+                    <a href="#informacion-personal" class="profile-nav-item active">
+                        <span class="nav-icon">👤</span>
+                        <span>Información Personal</span>
+                    </a>
+                    <a href="#seguridad" class="profile-nav-item">
+                        <span class="nav-icon">🔒</span>
+                        <span>Seguridad</span>
+                    </a>
+                    <a href="#historial-compras" class="profile-nav-item">
+                        <span class="nav-icon">🎫</span>
+                        <span>Historial de Compras</span>
+                    </a>
+                    <a href="#metodos-pago" class="profile-nav-item">
+                        <span class="nav-icon">💳</span>
+                        <span>Métodos de Pago</span>
+                    </a>
+                    <a href="#preferencias" class="profile-nav-item">
+                        <span class="nav-icon">⚙️</span>
+                        <span>Preferencias</span>
+                    </a>
+                    <a href="#notificaciones" class="profile-nav-item">
+                        <span class="nav-icon">🔔</span>
+                        <span>Notificaciones</span>
+                    </a>
+                </nav>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" th:text="${estadisticas.totalCompras}">15</div>
+                        <div class="stat-label">Compras</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" th:text="${estadisticas.eventosAsistidos}">12</div>
+                        <div class="stat-label">Eventos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" th:text="${estadisticas.puntosAcumulados}">350</div>
+                        <div class="stat-label">Puntos</div>
+                    </div>
+                </div>
+
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <button type="submit" class="btn btn-logout">
+                        <span class="logout-icon">🚪</span>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
+            </aside>
+
+            <!-- Contenido Principal -->
+            <div class="profile-content">
+                <!-- Información Personal -->
+                <section id="informacion-personal" class="profile-section">
+                    <div class="section-header">
+                        <h2>Información Personal</h2>
+                        <p>Administra tu información personal y de contacto</p>
+                    </div>
+
+                    <form th:action="@{/perfil/actualizar}"
+                          method="post"
+                          th:object="${usuario}"
+                          class="profile-form">
+
+                        <div class="card">
+                            <h3>Datos Básicos</h3>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="nombre">Nombre *</label>
+                                    <input type="text"
+                                           id="nombre"
+                                           th:field="*{nombre}"
+                                           required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="apellido">Apellido *</label>
+                                    <input type="text"
+                                           id="apellido"
+                                           th:field="*{apellido}"
+                                           required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="email">Email *</label>
+                                    <input type="email"
+                                           id="email"
+                                           th:field="*{email}"
+                                           required>
+                                    <small>Este email será usado para enviarte tus boletos</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="telefono">Teléfono</label>
+                                    <input type="tel"
+                                           id="telefono"
+                                           th:field="*{telefono}"
+                                           placeholder="+52 123 456 7890">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                                    <input type="date"
+                                           id="fechaNacimiento"
+                                           th:field="*{fechaNacimiento}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="genero">Género</label>
+                                    <select id="genero" th:field="*{genero}">
+                                        <option value="">Prefiero no decir</option>
+                                        <option value="M">Masculino</option>
+                                        <option value="F">Femenino</option>
+                                        <option value="O">Otro</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Dirección</h3>
+
+                            <div class="form-group">
+                                <label for="direccion">Dirección Completa</label>
+                                <input type="text"
+                                       id="direccion"
+                                       th:field="*{direccion}"
+                                       placeholder="Calle, número, colonia">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="ciudad">Ciudad</label>
+                                    <input type="text"
+                                           id="ciudad"
+                                           th:field="*{ciudad}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="estado">Estado</label>
+                                    <input type="text"
+                                           id="estado"
+                                           th:field="*{estado}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="codigoPostal">Código Postal</label>
+                                    <input type="text"
+                                           id="codigoPostal"
+                                           th:field="*{codigoPostal}"
+                                           maxlength="5">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="pais">País</label>
+                                <select id="pais" th:field="*{pais}">
+                                    <option value="MX">México</option>
+                                    <option value="US">Estados Unidos</option>
+                                    <option value="CA">Canadá</option>
+                                    <option value="ES">España</option>
+                                    <option value="AR">Argentina</option>
+                                    <option value="CO">Colombia</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Seguridad -->
+                <section id="seguridad" class="profile-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>Seguridad</h2>
+                        <p>Gestiona tu contraseña y configuración de seguridad</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Cambiar Contraseña</h3>
+                        <form th:action="@{/perfil/cambiar-password}" method="post">
+                            <div class="form-group">
+                                <label for="currentPassword">Contraseña Actual *</label>
+                                <input type="password"
+                                       id="currentPassword"
+                                       name="currentPassword"
+                                       required>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="newPassword">Nueva Contraseña *</label>
+                                    <input type="password"
+                                           id="newPassword"
+                                           name="newPassword"
+                                           minlength="8"
+                                           required>
+                                    <small>Mínimo 8 caracteres</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="confirmNewPassword">Confirmar Nueva Contraseña *</label>
+                                    <input type="password"
+                                           id="confirmNewPassword"
+                                           name="confirmNewPassword"
+                                           minlength="8"
+                                           required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                Actualizar Contraseña
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3>Autenticación de Dos Factores</h3>
+                        <p>Agrega una capa extra de seguridad a tu cuenta</p>
+
+                        <div class="security-option">
+                            <div class="option-info">
+                                <div class="option-icon">📱</div>
+                                <div>
+                                    <h4>Autenticación por SMS</h4>
+                                    <p>Recibe códigos de verificación por mensaje de texto</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" th:checked="${usuario.twoFactorEnabled}">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="security-option">
+                            <div class="option-info">
+                                <div class="option-icon">🔐</div>
+                                <div>
+                                    <h4>Aplicación de Autenticación</h4>
+                                    <p>Usa Google Authenticator o similar</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Sesiones Activas</h3>
+                        <p>Dispositivos donde has iniciado sesión recientemente</p>
+
+                        <div class="session-list">
+                            <div class="session-item">
+                                <div class="session-icon">💻</div>
+                                <div class="session-info">
+                                    <h4>Windows PC</h4>
+                                    <p>Chrome · Ciudad de México, México</p>
+                                    <small>Sesión actual · Hace 5 minutos</small>
+                                </div>
+                                <span class="session-badge active">Activa</span>
+                            </div>
+
+                            <div class="session-item">
+                                <div class="session-icon">📱</div>
+                                <div class="session-info">
+                                    <h4>iPhone 13</h4>
+                                    <p>Safari · Guadalajara, México</p>
+                                    <small>Hace 2 días</small>
+                                </div>
+                                <button class="btn btn-small btn-outline-danger">
+                                    Cerrar Sesión
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Historial de Compras -->
+                <section id="historial-compras" class="profile-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>Historial de Compras</h2>
+                        <p>Revisa tus compras y descarga tus boletos</p>
+                    </div>
+
+                    <div class="filters-bar">
+                        <select class="filter-select">
+                            <option>Todos los eventos</option>
+                            <option>Teatro</option>
+                            <option>Cine</option>
+                            <option>Museo</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>Últimos 6 meses</option>
+                            <option>Este año</option>
+                            <option>Todo el tiempo</option>
+                        </select>
+                    </div>
+
+                    <div class="purchases-list">
+                        <div class="purchase-card" th:each="compra : ${historialCompras}">
+                            <div class="purchase-header">
+                                <div class="purchase-date">
+                                    <span class="date-icon">📅</span>
+                                    <span th:text="${#temporals.format(compra.fecha, 'dd MMM yyyy')}">15 Ene 2026</span>
+                                </div>
+                                <span class="purchase-status status-completed">Completada</span>
+                            </div>
+
+                            <div class="purchase-body">
+                                <div class="purchase-event">
+                                    <div class="event-type-badge" th:classappend="${compra.tipo}">
+                                        <span th:text="${compra.tipo}">Teatro</span>
+                                    </div>
+                                    <h3 th:text="${compra.nombreEvento}">La Bohème</h3>
+                                    <p th:text="${compra.lugar}">Teatro Colón, Buenos Aires</p>
+                                </div>
+
+                                <div class="purchase-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Fecha del evento:</span>
+                                        <span th:text="${#temporals.format(compra.fechaEvento, 'dd MMM yyyy HH:mm')}">20 Feb 2026 19:00</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Boletos:</span>
+                                        <span th:text="${compra.cantidad}">2</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Total pagado:</span>
+                                        <strong th:text="'$' + ${compra.total}">$500.00</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="purchase-actions">
+                                <a th:href="@{/compras/{id}/boletos(id=${compra.id})}"
+                                   class="btn btn-small btn-outline">
+                                    📥 Descargar Boletos
+                                </a>
+                                <a th:href="@{/compras/{id}/detalles(id=${compra.id})}"
+                                   class="btn btn-small btn-outline">
+                                    Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Métodos de Pago -->
+                <section id="metodos-pago" class="profile-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>Métodos de Pago</h2>
+                        <p>Administra tus tarjetas y métodos de pago</p>
+                    </div>
+
+                    <button class="btn btn-primary mb-lg" onclick="openAddPaymentModal()">
+                        <span>➕ Agregar Método de Pago</span>
+                    </button>
+
+                    <div class="payment-methods-grid">
+                        <div class="payment-method-card" th:each="metodo : ${metodosPago}">
+                            <div class="payment-card-visual" th:classappend="${metodo.tipo}">
+                                <div class="card-chip"></div>
+                                <div class="card-number">
+                                    **** **** **** <span th:text="${metodo.ultimos4}">1234</span>
+                                </div>
+                                <div class="card-info">
+                                    <div class="card-holder" th:text="${metodo.titular}">NOMBRE TITULAR</div>
+                                    <div class="card-expiry">
+                                        Exp: <span th:text="${metodo.expiracion}">12/25</span>
+                                    </div>
+                                </div>
+                                <div class="card-brand" th:text="${metodo.marca}">VISA</div>
+                            </div>
+
+                            <div class="payment-card-actions">
+                                <button class="btn btn-small btn-outline"
+                                        th:onclick="'editPaymentMethod(' + ${metodo.id} + ')'">
+                                    Editar
+                                </button>
+                                <button class="btn btn-small btn-outline-danger"
+                                        th:onclick="'deletePaymentMethod(' + ${metodo.id} + ')'">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Preferencias -->
+                <section id="preferencias" class="profile-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>Preferencias</h2>
+                        <p>Personaliza tu experiencia en TicketMaster</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Preferencias de Eventos</h3>
+
+                        <div class="preference-option">
+                            <div class="option-info">
+                                <h4>Categorías Favoritas</h4>
+                                <p>Selecciona tus categorías de interés</p>
+                            </div>
+                            <div class="category-tags">
+                                <label class="tag-checkbox">
+                                    <input type="checkbox" checked>
+                                    <span>🎭 Teatro</span>
+                                </label>
+                                <label class="tag-checkbox">
+                                    <input type="checkbox" checked>
+                                    <span>🎬 Cine</span>
+                                </label>
+                                <label class="tag-checkbox">
+                                    <input type="checkbox">
+                                    <span>🏛️ Museos</span>
+                                </label>
+                                <label class="tag-checkbox">
+                                    <input type="checkbox">
+                                    <span>🎵 Conciertos</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="preference-option">
+                            <div class="option-info">
+                                <h4>Idioma</h4>
+                                <p>Selecciona tu idioma preferido</p>
+                            </div>
+                            <select class="preference-select">
+                                <option value="es" selected>Español</option>
+                                <option value="en">English</option>
+                                <option value="pt">Português</option>
+                            </select>
+                        </div>
+
+                        <div class="preference-option">
+                            <div class="option-info">
+                                <h4>Moneda</h4>
+                                <p>Selecciona tu moneda preferida</p>
+                            </div>
+                            <select class="preference-select">
+                                <option value="MXN" selected>MXN - Peso Mexicano</option>
+                                <option value="USD">USD - Dólar Estadounidense</option>
+                                <option value="EUR">EUR - Euro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Privacidad</h3>
+
+                        <div class="preference-toggle">
+                            <div class="option-info">
+                                <h4>Perfil Público</h4>
+                                <p>Permite que otros usuarios vean tu perfil</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-toggle">
+                            <div class="option-info">
+                                <h4>Mostrar Historial de Asistencia</h4>
+                                <p>Otros pueden ver los eventos a los que has asistido</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Notificaciones -->
+                <section id="notificaciones" class="profile-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>Notificaciones</h2>
+                        <p>Elige cómo quieres recibir notificaciones</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Notificaciones por Email</h3>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <div class="option-icon">📧</div>
+                                <div>
+                                    <h4>Confirmaciones de Compra</h4>
+                                    <p>Recibe confirmación cuando compres boletos</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <div class="option-icon">🎫</div>
+                                <div>
+                                    <h4>Recordatorios de Eventos</h4>
+                                    <p>Te recordaremos tus próximos eventos</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <div class="option-icon">🎉</div>
+                                <div>
+                                    <h4>Nuevos Eventos</h4>
+                                    <p>Entérate de eventos que podrían interesarte</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <div class="option-icon">💰</div>
+                                <div>
+                                    <h4>Promociones y Ofertas</h4>
+                                    <p>Recibe descuentos exclusivos</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Notificaciones Push</h3>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <div class="option-icon">🔔</div>
+                                <div>
+                                    <h4>Notificaciones del Navegador</h4>
+                                    <p>Recibe alertas en tu navegador</p>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    // Navegación entre secciones
+    document.querySelectorAll('.profile-nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Actualizar navegación activa
+            document.querySelectorAll('.profile-nav-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+
+            // Mostrar sección correspondiente
+            const targetId = this.getAttribute('href').substring(1);
+            document.querySelectorAll('.profile-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(targetId).style.display = 'block';
+
+            // Scroll suave
+            document.getElementById(targetId).scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    function uploadAvatar(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.querySelector('.profile-avatar img').src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+
+            // Aquí enviarías el archivo al servidor
+            // uploadAvatarToServer(input.files[0]);
+        }
+    }
+
+    function resetForm() {
+        if (confirm('¿Estás seguro de que quieres descartar los cambios?')) {
+            location.reload();
+        }
+    }
+
+    function openAddPaymentModal() {
+        alert('Modal para agregar método de pago (implementar)');
+    }
+
+    function editPaymentMethod(id) {
+        alert('Editar método de pago ID: ' + id);
+    }
+
+    function deletePaymentMethod(id) {
+        if (confirm('¿Estás seguro de que quieres eliminar este método de pago?')) {
+            // Aquí harías la petición al servidor
+            alert('Método de pago eliminado');
+        }
+    }
+</script>
+</body>
+</html>
