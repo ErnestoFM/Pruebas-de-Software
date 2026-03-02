@@ -44,4 +44,6 @@ public class EventRequest {
     private Set<Events.DiasDisponibles> diasDisponibles;
 
     private Set<Events.RopaPermitida> ropaPermitida;
+
+    private String imageId;
 }

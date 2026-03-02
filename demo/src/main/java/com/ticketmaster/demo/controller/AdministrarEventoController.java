@@ -2,6 +2,7 @@ package com.ticketmaster.demo.controller;
 
 import com.ticketmaster.demo.dto.EventRequest;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,9 +16,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/events")
 public class AdministrarEventoController {
 
+    @Value("${app.image-api.base-url}")
+    private String imageApiUrl;
+
     @GetMapping("/create")
     public String showCreateEventForm(Model model) {
         model.addAttribute("event", new EventRequest());
+        model.addAttribute("imageApiUrl", imageApiUrl);
         return "eventos/create";
     }
 

@@ -62,6 +62,9 @@ public class Events {
     private Set<DiasDisponibles> diasDisponibles = EnumSet.allOf(DiasDisponibles.class);
     @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL)
     private List<AsientoBase> asientos;
+
+    @Column(name = "image_id")
+    private String imageId;
     public enum TipoEvento {
         CINE,
         TEATRO,
